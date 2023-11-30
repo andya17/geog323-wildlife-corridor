@@ -2,25 +2,25 @@
 
 ## Contributors
 
-- Emmanuel H. Lyimo^1^\*, email address, [ORCID link](https://orcid.org/0000-0002-5750-8636), College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
-- Gabriel M. Mayengo^1^, mayengogabriel@gmail.com
-- David J. Castico^2^, davidcastico@gmail.com
-- Damian Nguma^3^, damiannguma@gmail.com
-- Kwaslema M. Hariohay^1^, kwaslema2000@gmail.com
-- Alex W. Kisingo^1^, alexkisingo@gmail.com
-- Justin Lucas^4^
-- Niwaeli Kimambo^4^
-- Joseph Holler^4^
-- Alana Lutz^4^
-- Andy Atallah^4^
+- Emmanuel H. Lyimo<sup>1</sup>\*, email address, [ORCID link](https://orcid.org/0000-0002-5750-8636), College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
+- Gabriel M. Mayengo<sup>1</sup>, mayengogabriel@gmail.com
+- David J. Castico<sup>2</sup>, davidcastico@gmail.com
+- Damian Nguma<sup>3</sup>, damiannguma@gmail.com
+- Kwaslema M. Hariohay<sup>1</sup>, kwaslema2000@gmail.com
+- Alex W. Kisingo<sup>1</sup>, alexkisingo@gmail.com
+- Justin Lucas<sup>4</sup>
+- Niwaeli Kimambo<sup>4</sup>
+- Joseph Holler<sup>4</sup>
+- Alana Lutz<sup>4</sup>
+- Andy Atallah<sup>4</sup>
 
-^1^ College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
+<sup>1</sup> College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
 
-^2^ Tanzania People and Wildlife, P.O Box 11306, Arusha, Tanzania
+<sup>2</sup>Tanzania People and Wildlife, P.O Box 11306, Arusha, Tanzania
 
-^3^ Tanzania Wildlife Research Institute, P.O Box 661, Arusha, Tanzania
+<sup>3</sup> Tanzania Wildlife Research Institute, P.O Box 661, Arusha, Tanzania
 
-^4^ Middlebury College, Middlebury, Vermont 05753, USA
+<sup>4</sup> Middlebury College, Middlebury, Vermont 05753, USA
 
 \* Corresponding author and creator
 
