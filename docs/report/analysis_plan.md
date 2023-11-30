@@ -1,60 +1,72 @@
 # Title of Study
 
-### Authors
+## Contributors
 
-- First Name Last Name\*, email address, @githubname, ORCID link, affiliated institution(s)
-- First Name Last Name, email address, @githubname, ORCID link, affiliated institution(s)
+- Emmanuel H. Lyimo<sup>1</sup>\*, email address, [ORCID link](https://orcid.org/0000-0002-5750-8636), College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
+- Gabriel M. Mayengo<sup>1</sup>, mayengogabriel@gmail.com
+- David J. Castico<sup>2</sup>, davidcastico@gmail.com
+- Damian Nguma<sup>3</sup>, damiannguma@gmail.com
+- Kwaslema M. Hariohay<sup>1</sup>, kwaslema2000@gmail.com
+- Alex W. Kisingo<sup>1</sup>, alexkisingo@gmail.com
+- Justin Lucas<sup>4</sup>
+- Niwaeli Kimambo<sup>4</sup>
+- Joseph Holler<sup>4</sup>
+- Alana Lutz<sup>4</sup>
+- Andy Atallah<sup>4</sup>
+
+<sup>1</sup> College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
+
+<sup>2</sup>Tanzania People and Wildlife, P.O Box 11306, Arusha, Tanzania
+
+<sup>3</sup> Tanzania Wildlife Research Institute, P.O Box 661, Arusha, Tanzania
+
+<sup>4</sup> Middlebury College, Middlebury, Vermont 05753, USA
 
 \* Corresponding author and creator
 
-### Abstract
+## Abstract
 
-Write a brief abstract about your research project.
-
-If the project is a reproduction or replication study, include a declaration of the study type with a full reference to the original study.
-For example:
-
-This study is a *replication* of:
-
-> citation to prior study
-
-A graphical abstract of the study could also be included as an image here.
+This study is a reproduction of unpublished research by Emmanual H Lyimo et al (2023), titled: Makuyuni Wildlife Corridor: Analysis of the Effects of Socioecological Interactions and Changing Land Use on Movement Patterns of Large Mammal Species. The original study evaluated the connectivity of Makuyuni Wildlife Corridor, a stretch of unprotected land between Tarangire National Park and Essmingor National Forest Reserve in Tanzania. We reproduce the first part of the study, a multifactor analysis model that approximates cost of movement through the corridor based on least cost pathway analysis. The study was originally conducted using the QGIS Model Builder, and we reproduce the workflow in R. The goal of the study is to reproduce the authors' map displaying the minimum cost of movement through each point in the study area, compare the reproduced map to the original map, and evaluate why the reproduction may differ from the original.
 
 ### Study metadata
 
-- `Key words`: Comma-separated list of keywords (tags) for searchability. Geographers often use one or two keywords each for: theory, geographic context, and methods.
-- `Subject`: select from the [BePress Taxonomy](http://digitalcommons.bepress.com/cgi/viewcontent.cgi?article=1008&context=reference)
-- `Date created`: date when project was started
-- `Date modified`: date of most recent revision
-- `Spatial Coverage`: Specify the geographic extent of your study. This may be a place name and link to a feature in a gazetteer like GeoNames or OpenStreetMap, or a well known text (WKT) representation of a bounding box.
-- `Spatial Resolution`: Specify the spatial resolution as a scale factor, description of the level of detail of each unit of observation (including administrative level of administrative areas), and/or or distance of a raster GRID size
-- `Spatial Reference System`: Specify the geographic or projected coordinate system for the study, e.g. EPSG:4326
-- `Temporal Coverage`: Specify the temporal extent of your study---i.e. the range of time represented by the data observations.
-- `Temporal Resolution`: Specify the temporal resolution of your study---i.e. the duration of time for which each observation represents or the revisit period for repeated observations
-- `Funding Name`: name of funding for the project
-- `Funding Title`: title of project grant
-- `Award info URI`: web address for award information
-- `Award number`: award number
+- `Key words`: multifactor analysis, least cost pathway, wildlife corridor, movement cost, line transect sampling, Makuyuni, Tarangire National Park, Essmingor National Forest Reserve, Tanzania
+- `Subject`: Social and Behavioral Sciences: Geography: Nature and Society Relations
+- `Date created`: 2023-11-30
+- `Date modified`: 2023-11-30
+- `Spatial Coverage`: Makuyuni Wildlife Corridor, Tanzania
+- `Spatial Resolution`: 10 meter resolution
+- `Spatial Reference System`: EPSG 32736
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`: Not applicable
 
 #### Original study spatio-temporal metadata
 
-- `Spatial Coverage`: extent of original study
-- `Spatial Resolution`: resolution of original study
-- `Spatial Reference System`: spatial reference system of original study
-- `Temporal Coverage`: temporal extent of original study
-- `Temporal Resolution`: temporal resolution of original study
+As this is a reproduction study, all of these fields are the same as in the original study.
 
 ## Study design
 
-Describe how the study relates to prior literature, e.g. is it a **original study**, **meta-analysis study**, **reproduction study**, **reanalysis study**, or **replication study**?
+This is a **reproduction study**. The part of the study which we are reproducing (the wildlife corridor ) is **observational**.
 
-Also describe the original study archetype, e.g. is it **observational**, **experimental**, **quasi-experimental**, or **exploratory**?
+Our research question concerns whether the wildlife corridor least cost analysis can be reproduced in R. The **null hypothesis** is that there will be no difference between Figure 5 in the original study and the reproduced Figure 5 which we create using R. The **alternative hypothesis** is that there will be apparent differences between these two figures.
 
-Enumerate specific **hypotheses** to be tested or **research questions** to be investigated here, and specify the type of method, statistical test or model to be used on the hypothesis or question.
+Our method of comparing the two figures will be visual inspection due to the scope of the project.
 
 ## Materials and procedure
 
+We are using data shared from the original authors of the study.
+We will look through their data, workflows, and models and reproduce their Figure 5 (least cost pathway) in R. We will follow the structure of the workflow as closely as possible.
+
 ### Computational environment
+
+Hardware: MacBook Air M1 2020; MacOS 13.4 (22F66)
+
+R Version 2023.06.2+561 (2023.06.2+561)
+
+R packages used:
+- raster
+- stars
+- sf
 
 Define the hardware, operating system, and software requirements for the research.
 Include citations to important software projects, plugins or packages and their versions.
@@ -70,120 +82,102 @@ Secondary data sources for the study are to include ... .
 
 Each of the next subsections describes one data source.
 
-#### Primary data source1 name
+#### landcover.tif
 
 **Standard Metadata**
 
-- `Abstract`: Brief description of the data source
-- `Spatial Coverage`: Specify the geographic extent of your study. This may be a place name and link to a feature in a gazetteer like GeoNames or OpenStreetMap, or a well known text (WKT) representation of a bounding box.
-- `Spatial Resolution`: Specify the spatial resolution as a scale factor, description of the level of detail of each unit of observation (including administrative level of administrative areas), and/or or distance of a raster GRID size
-- `Spatial Reference System`: Specify the geographic or projected coordinate system for the study
-- `Temporal Coverage`: Specify the temporal extent of your study---i.e. the range of time represented by the data observations.
-- `Temporal Resolution`: Specify the temporal resolution of your study---i.e. the duration of time for which each observation represents or the revisit period for repeated observations
-- `Lineage`: Describe and/or cite data sources and/or methodological steps planned to create this data source.
-  - sampling scheme, including spatial sampling
-  - target sample size and method for determining sample size
-  - stopping criteria for data collection and sampling (e.g. sample size, time elapsed)
-  - de-identification / anonymization
-  - experimental manipulation
-- `Distribution`: Describe who will make the data available and how?
-- `Constraints`: Legal constraints for *access* or *use* to protect *privacy* or *intellectual property rights*
-- `Data Quality`: State any planned quality assessment
-- `Variables`: For each variable, enter the following information. If you have two or more variables per data source, you may want to present this information in table form (shown below)
-  - `Label`: variable name as used in the data or code
-  - `Alias`: intuitive natural language name
-  - `Definition`: Short description or definition of the variable. Include measurement units in description.
-  - `Type`: data type, e.g. character string, integer, real
-  - `Accuracy`: e.g. uncertainty of measurements
-  - `Domain`: Expected range of Maximum and Minimum of numerical data, or codes or categories of nominal data, or reference to a standard codebook
-  - `Missing Data Value(s)`: Values used to represent missing data and frequency of missing data observations
-  - `Missing Data Frequency`: Frequency of missing data observations: not yet known for data to be collected
+- `Abstract`: This is a land cover raster for the entirety of Tanzania.
+- `Spatial Coverage`: The data source pertains to the whole country.
+- `Spatial Resolution`: 4.77m
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the following paper: Song, L., Estes, A. B., & Estes, L. D. (2023). A super-ensemble approach to map land cover types with high resolution over data-sparse African savanna landscapes. International Journal of Applied Earth Observation and Geoinformation, 116, 103152. https://doi.org/10.1016/j.jag.2022.103152
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: Band 1 is land cover. The classification scheme is established by Song et al. (2023).
+  - 1 (orange): cropland
+  - 2 (dark green): forest/dense tree
+  - 3 (light green): grassland
+  - 4 (green): shrubland
+  - 5 (blue): water
+  - 6 (gray): built-up
+  - 7 (tan): bareland
+  - 8 (teal): wetland
 
-| Label | Alias | Definition | Type | Accuracy | Domain | Missing Data Value(s) | Missing Data Frequency |
-| :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: |
-| variable1 | ... | ... | ... | ... | ... | ... | ... |
-| variable2 | ... | ... | ... | ... | ... | ... | ... |
+#### adjusted_studysite
 
-#### Primary data source2 name
+- `Abstract`: This is a shapefile for the study site (i.e. the Makuyuni Wildlife Corridor)
+- `Spatial Coverage`: The data source pertains to Makuyuni Wildlife Corridor.
+- `Spatial Resolution`: Unknown
+- `Spatial Extent`: 833295.2141958434367552,9588552.1709635984152555 : 858831.0715981726534665,9615078.0293724834918976
+- `Spatial Reference System`: EPSG:32736 - WGS 84 / UTM zone 36S - Projected
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: The shapefile is filled with a Simple Fill and has no land cover data.
 
-... same form as above...
+#### bounding_box
 
-#### Secondary data source1 name
+- `Abstract`: This is a shapefile which was "used to create [a] buffer to prevent edge effects", per Justin Lucas. It extends past the boundaries of adjusted_studysite when the shapefiles are visualized together.
+- `Spatial Coverage`: The data source pertains to land surrounding Makuyuni Wildlife Corridor and the corridor itself.
+- `Spatial Resolution`: Unknown
+- `Spatial Extent`: 833295.2141958434367552,9585634.2357019279152155 : 860913.8547548535279930,9617039.8727052193135023
+- `Spatial Reference System`: EPSG:32736 - WGS 84 / UTM zone 36S
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: The shapefile is filled with a Simple Fill and has no land cover data.
 
-**Standard Metadata**
+#### secondary_roads
 
-- `Abstract`: Brief description of the data source
-- `Spatial Coverage`: Specify the geographic extent of your study. This may be a place name and link to a feature in a gazetteer like GeoNames or OpenStreetMap, or a well known text (WKT) representation of a bounding box.
-- `Spatial Resolution`: Specify the spatial resolution as a scale factor, description of the level of detail of each unit of observation (including administrative level of administrative areas), and/or or distance of a raster GRID size
-- `Spatial Reference System`: Specify the geographic or projected coordinate system for the study
-- `Temporal Coverage`: Specify the temporal extent of your study---i.e. the range of time represented by the data observations.
-- `Temporal Resolution`: Specify the temporal resolution of your study---i.e. the duration of time for which each observation represents or the revisit period for repeated observations
-- `Lineage`: Describe and/or cite data sources and/or methodological steps used to create this data source
-- `Distribution`: Describe how the data is distributed, including any persistent identifier (e.g. DOI) or URL for data access
-- `Constraints`: Legal constraints for *access* or *use* to protect *privacy* or *intellectual property rights*
-- `Data Quality`: State result of quality assessment or state "Quality unknown"
-- `Variables`: For each variable, enter the following information. If you have two or more variables per data source, you may want to present this information in table form (shown below)
-  - `Label`: variable name as used in the data or code
-  - `Alias`: intuitive natural language name
-  - `Definition`: Short description or definition of the variable. Include measurement units in description.
-  - `Type`: data type, e.g. character string, integer, real
-  - `Accuracy`: e.g. uncertainty of measurements
-  - `Domain`: Range (Maximum and Minimum) of numerical data, or codes or categories of nominal data, or reference to a standard codebook
-  - `Missing Data Value(s)`: Values used to represent missing data and frequency of missing data observations
-  - `Missing Data Frequency`: Frequency of missing data observations
+- `Abstract`: This is a shapefile which is described as containing "all tracks and roads that were within the study area aside from the two major highways" by Justin Lucas. The shapefile contains line geometries and has 176 total features.
+- `Spatial Coverage`: The data source pertains to land surrounding Makuyuni Wildlife Corridor and the corridor itself.
+- `Spatial Resolution`: Unknown
+- `Spatial Extent`: 4002985.2809690786525607,-417528.5057486270670779 : 4055363.5504161105491221,-386600.4248493338818662
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas. Lucas states that this shapefile was sourced from OpenStreetMap.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: Roads are filled with a Simple Fill and there are no associated land cover data.
 
-| Label | Alias | Definition | Type | Accuracy | Domain | Missing Data Value(s) | Missing Data Frequency |
-| :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: |
-| variable1 | ... | ... | ... | ... | ... | ... | ... |
-| variable2 | ... | ... | ... | ... | ... | ... | ... |
+#### Bomas
 
-#### Secondary data source2 name
+- `Abstract`: This is a shapefile which ostensibly contains locations of bomas, or livestock enclosures, within the wildlife corridor.
+- `Spatial Coverage`: The data source pertains to land within the wildlife corridor.
+- `Spatial Extent`: 4007605.1797135984525084,-412580.2386067652842030 : 4032954.7106412472203374,-387445.8448925596894696
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas. 
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: Bomas are filled with a Simple Fill and there are no associated land cover data.
 
-... same form as above...
+#### major_roads_vector
 
-### Prior observations  
-
-Prior experience with the study area, prior data collection, or prior observation of the data can compromise the validity of a study, e.g. through p-hacking.
-Therefore, disclose any prior experience or observations at the time of study pre-registration here, with example text below:
-
-At the time of this study pre-registration, the authors had _____ prior knowledge of the geography of the study region with regards to the ____ phenomena to be studied.
-This study is related to ____ prior studies by the authors
-
-For each primary data source, declare the extent to which authors had already engaged with the data:
-
-- [ ] no data collection has started
-- [ ] pilot test data has been collected
-- [ ] data collection is in progress and data has not been observed
-- [ ] data collection is in progress and __% of data has been observed
-- [ ] data collection is complete and data has been observed. Explain how authors have already manipulated / explored the data.
-
-For each secondary source, declare the extent to which authors had already engaged with the data:
-
-- [ ] data is not available yet
-- [ ] data is available, but only metadata has been observed
-- [ ] metadata and descriptive statistics have been observed
-- [ ] metadata and a pilot test subset or sample of the full dataset have been observed
-- [ ] the full dataset has been observed. Explain how authors have already manipulated / explored the data.
-
-If pilot test data has been collected or acquired, describe how the researchers observed and analyzed the pilot test, and the extent to which the pilot test influenced the research design.
-
-### Bias and threats to validity
-
-Given the research design and primary data to be collected and/or secondary data to be used, discuss common threats to validity and the approach to mitigating those threats, with an emphasis on geographic threats to validity.
-
-These include:
-  - uneven primary data collection due to geographic inaccessibility or other constraints
-  - multiple hypothesis testing
-  - edge or boundary effects
-  - the modifiable areal unit problem
-  - nonstationarity
-  - spatial dependence or autocorrelation
-  - temporal dependence or autocorrelation
-  - spatial scale dependency
-  - spatial anisotropies
-  - confusion of spatial and a-spatial causation
-  - ecological fallacy
-  - uncertainty e.g. from spatial disaggregation, anonymization, differential privacy
+- `Abstract`: This is a shapefile which contains "two highways that run through the study area", per Justin Lucas.
+- `Spatial Coverage`: The data source pertains to the entirety of the extent of the highways, which extend far past the study site and outside of Tanzania to the north and south.
+- `Spatial Extent`: 24.9389406999999999,-33.9686420999999967 : 36.7868238000000005,-1.4968789000000000
+- `Spatial Reference System`: EPSG:4326 - WGS 84
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas. Lucas states that this shapefile is sourced from OpenStreetMap. 
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: The highways are filled with a Simple Fill and there are no associated land cover data.
 
 ### Data transformations
 

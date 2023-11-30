@@ -31,7 +31,6 @@ This study is a reproduction of unpublished research by Emmanual H Lyimo et al (
 ## Study Metadata
 
 - `Key words`: multifactor analysis, least cost pathway, wildlife corridor, movement cost, line transect sampling, Makuyuni, Tarangire National Park, Essmingor National Forest Reserve, Tanzania
-
 - `Subject`: Social and Behavioral Sciences: Geography: Nature and Society Relations
 - `Date created`: 2023-11-30
 - `Date modified`: 2023-11-30
