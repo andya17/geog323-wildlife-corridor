@@ -1,12 +1,23 @@
-If you use this template for research, please [cite it](template_reference.bib):
-> Kedron, P., & Holler, J. (2023). Template for Reproducible and Replicable Research in Human-Environment and Geographical Sciences. https://doi.org/10.17605/OSF.IO/W29MQ
-
 # Title of Study
 
 ## Contributors
 
-- First Name Last Name\*, email address, @githubname, ORCID link, affiliated institution(s)
-- First Name Last Name, email address, @githubname, ORCID link, affiliated institution(s)
+- Emmanuel H. Lyimo^1\*, email address, [ORCID link](https://orcid.org/0000-0002-5750-8636), College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
+- Gabriel M. Mayengo^1, mayengogabriel@gmail.com
+- David J. Castico^2, davidcastico@gmail.com
+- Damian Nguma^3, damiannguma@gmail.com
+- Kwaslema M. Hariohay^1, kwaslema2000@gmail.com
+- Alex W. Kisingo^1, alexkisingo@gmail.com
+- Justin Lucas^4
+- Niwaeli Kimambo^4
+- Joseph Holler^4
+- Alana Lutz^4
+- Andy Atallah^4
+
+^1 College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
+^2 Tanzania People and Wildlife, P.O Box 11306, Arusha, Tanzania
+^3 Tanzania Wildlife Research Institute, P.O Box 661, Arusha, Tanzania
+^4 Middlebury College, Middlebury, Vermont 05753, USA
 
 \* Corresponding author and creator
 
@@ -14,38 +25,24 @@ If you use this template for research, please [cite it](template_reference.bib):
 
 Write a brief abstract about your research project.
 If the project is a reproduction or replication study, include the full citation with a statement
-This study is a *reproduction/replication* of:
+This study is a *reanalysis* of:
+> Makuyuni Wildlife Corridor: Analysis of the Effects of Socioecological Interactions and Changing Land Use on Movement Patterns of Large Mammal Species
 
-> citation to prior study
 
 A graphical abstract of the study could also be included as an image here.
 
 ## Study Metadata
 
-- `Key words`: Comma-separated list of keywords (tags) for searchability. Geographers often use one or two keywords each for: theory, geographic context, and methods.
-- `Subject`: select from the [BePress Taxonomy](http://digitalcommons.bepress.com/cgi/viewcontent.cgi?article=1008&context=reference)
-- `Date created`: date when project was started
-- `Date modified`: date of most recent revision
-- `Spatial Coverage`: Specify the geographic extent of your study. This may be a place name and link to a feature in a gazetteer like GeoNames or OpenStreetMap, or a well known text (WKT) representation of a bounding box.
-- `Spatial Resolution`: Specify the spatial resolution as a scale factor, description of the level of detail of each unit of observation (including administrative level of administrative areas), and/or or distance of a raster GRID size
-- `Spatial Reference System`: Specify the geographic or projected coordinate system for the study
-- `Temporal Coverage`: Specify the temporal extent of your study---i.e. the range of time represented by the data observations.
-- `Temporal Resolution`: Specify the temporal resolution of your study---i.e. the duration of time for which each observation represents or the revisit period for repeated observations
-- `Funding Name`: name of funding for the project
-- `Funding Title`: title of project grant
-- `Award info URI`: web address for award information
-- `Award number`: award number
+- `Key words`: multifactor analysis, least cost pathway, wildlife corridor, movement cost, line transect sampling, Makuyuni, Tarangire National Park, Essmingor National Forest Reserve, Tanzania
 
-## Related to
-
-- `OSF Project`:
-- `Pre-analysis Registration`:
-- `Post-analysis Report Registration`:
-- `Preprint`:
-- `Conference Presentation`:
-- `Publication`:
-- `Prior Study`:
-- `...`:
+- `Subject`: Social and Behavioral Sciences: Geography: Nature and Society Relations
+- `Date created`: 2023-11-30
+- `Date modified`: 2023-11-30
+- `Spatial Coverage`: Makuyuni Wildlife Corridor, Tanzania
+- `Spatial Resolution`: 10 meter resolution
+- `Spatial Reference System`: EPSG 32736
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`: Not applicable
 
 ## Metadata for access
 
