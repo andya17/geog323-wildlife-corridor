@@ -1,0 +1,53 @@
+---
+title: "wildlife_corridor.rmd"
+author: "Andy Atallah"
+date: "2023-11-30"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+# Install packages
+library(sf)
+library(stars)
+library()
+library(rgdal)
+library(raster)
+library(rgeos)
+```
+
+1a. Reproject secondary roads.
+
+secondary_roads (GEOMETRY FILE) --> [Reproject] to EPSG:32736 - WGS 84 / UTM zone 36S
+
+Inputs: secondary_roads
+Outputs: unnamed intermediate "1a_output"
+Possible functions: rgdal::readogr, st::st_transform
+```{r}
+
+```
+
+1b. Rasterize secondary roads.
+
+"1a output" (GEOMETRY FILE) --> [Rasterize]
+
+Inputs: "1a output"
+Outputs: unnamed intermediate "secondary_roads_raster"
+Possible functions: rgdal::readogr, stars::st_rasterize
+```{r}
+
+```
+
+2. Clip landcover by raster extent of initial_clip.
+
+landcover (GEOMETRY FILE) [CLIP] initial_clip (GEOMETRY FILE)
+
+Inputs: landcover, intial_clip
+Outputs: unnamed intermediate
+Possible functions: rgdal::readogr, raster::raster
+
+```{r}
+
+```
+

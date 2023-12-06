@@ -84,8 +84,6 @@ Each of the next subsections describes one data source.
 
 #### landcover.tif
 
-**Standard Metadata**
-
 - `Abstract`: This is a land cover raster for the entirety of Tanzania.
 - `Spatial Coverage`: The data source pertains to the whole country.
 - `Spatial Resolution`: 4.77m
@@ -178,6 +176,30 @@ Each of the next subsections describes one data source.
 - `Constraints`: Unknown
 - `Data Quality`: No planned quality assessment.
 - `Variables`: The highways are filled with a Simple Fill and there are no associated land cover data.
+
+### Prior observations  
+
+Prior experience with the study area, prior data collection, or prior observation of the data can compromise the validity of a study, e.g. through p-hacking.
+Therefore, disclose any prior experience or observations at the time of study pre-registration here, with example text below:
+
+At the time of this study pre-registration, the authors had no prior knowledge of the geography of the study region with regards to the phenomena to be studied.
+This study is related to 0 prior studies by the authors.
+
+For each primary data source, declare the extent to which authors had already engaged with the data:
+
+- [ ] no data collection has started
+- [ ] pilot test data has been collected
+- [ ] data collection is in progress and data has not been observed
+- [ ] data collection is in progress and __% of data has been observed
+- [x] data collection is complete and data has been observed. Explain how authors have already manipulated / explored the data.
+
+For each data layer, the authors have investigated extent and other properties in QGIS.
+
+### Bias and threats to validity
+
+Given the research design and primary data to be collected and/or secondary data to be used, discuss common threats to validity and the approach to mitigating those threats, with an emphasis on geographic threats to validity.
+
+The main threat is boundary/edge effects, which can be mitigated by adding an extremely high cost to the land outside of the study site or buffering the start and end regions (for accumulated cost analysis). This is to avoid a pathway traveling around the study site.
 
 ### Data transformations
 
