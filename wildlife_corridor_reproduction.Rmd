@@ -1,6 +1,6 @@
 ---
 title: "wildlife_corridor.rmd"
-author: "Andy Atallah"
+author: "Alana Lutz, Andy Atallah"
 date: "2023-11-30"
 output: html_document
 editor_options: 
@@ -9,45 +9,381 @@ editor_options:
 
 ```{r}
 # Install packages
+library(tidyverse) # Pipe function
+library(here)
 library(sf)
 library(stars)
-library()
-library(rgdal)
 library(raster)
-library(rgeos)
+library(terra)
+library(stringr)
 ```
 
-1a. Reproject secondary roads.
+1. Clip landcover by extent of bounding box.
 
-secondary_roads (GEOMETRY FILE) --> [Reproject] to EPSG:32736 - WGS 84 / UTM zone 36S
+Inputs: "landcover", "bounding_box"
+Outputs: unnamed intermediate - "lc_study_clip"
+Corresponding QGIS workflow function: Clip landcover by study site
+
+**Unplanned deviation**: We are clipping the land cover .tif file based on the bounding box instead of the "initial clip" file because the landcover was clipped twice.
+```{r}
+# Read in landcover .tif file under the raster package
+landcover <- here("data", "raw", "public", "landcover (1).tif")  %>% raster()
+
+# Read in bounding_box shapefile under the stars package
+bounds <- here("data", "raw", "public", "bounding_box", "bounding_box.shp") %>% st_read()
+
+# Change the CRS of the bounds to that of landcover to enable clipping
+bounds <- bounds %>% st_transform(proj4string(landcover)) 
+
+# Clip landcover to bounds extent
+lc_study_clip <- mask(crop(landcover, extent(bounds)), bounds)
+```
+
+2. Warp (reproject) landcover.
+
+Inputs: initial_raster_clip, pixel_size
+Outputs: unnamed_intermediate "initial_raster_clip_proj"
+Corresponding QGIS workflow function: Warp (reproject)
+
+**Unplanned deviation**: The landcover raster was resampled to a constructed raster with a resolution of 10x10 m to account for the pixel size input. Within the QGIS workflow, the pixel size has a minimum value of 70 and a maximum value of 100 (assumed units are meters). In contrast, the manuscript states that rasters had a resolution of 10x10 m. Pixel size is a variable whose value can be altered when running the least cost model, and it is assumed that Lucas used a value of 10 when creating the least cost raster contained within the "DD_Cost_6" file (Prof. Holler, personal communication, 12/11/2023).
+```{r}
+lc_study_clip_proj <- projectRaster(lc_study_clip, crs=32736)
+
+plot(lc_study_clip_proj)
+
+# Get resolution
+#res(lc_study_clip_proj)
+
+# Create new raster with default pixel size value of 10
+pixel_default <- raster(resolution=c(10, 10), crs=proj4string(lc_study_clip_proj), ext=extent(lc_study_clip_proj))
+
+# Resample to change the resolution to 10x10
+lc_study_clip_proj <- resample(lc_study_clip_proj, pixel_default)
+
+# Get new resolution
+res(lc_study_clip_proj)
+```
+
+3. Reclassify landcover by table.
+
+Inputs: "lc_study_clip_proj"
+Outputs: unnamed intermediate "lc_reclass"
+Corresponding QGIS workflow function: Reclassify landcover by table
+
+**Note**: The workflow diagram on Google Drive contained a different reclassification table for landcover. The table in QGIS was instead used as a reference due to its relevance to the behavior of the model.
+```{r}
+# Create 3x10 table of values with which to reclassify
+# Data source: the QGIS workflow
+
+# Create columns of the data table
+c1 <- c(0,1,2,3,4,5,6,7,8,9)
+c2 <- c(0,2,3,4,5,6,7,8,9,255)
+c3 <- c(0,0.75,0.01,0.25,0.01,0.15,1,0.1,0.15,0)
+
+# Create a matrix
+reclass_table <- as.matrix(data.frame(c1, c2, c3))
+
+# Reclassify raster with right=F
+lc_reclass <- reclassify(lc_study_clip_proj, reclass_table, right=F)
+```
+
+4a. Reproject secondary roads to CRS=32736.
 
 Inputs: secondary_roads
-Outputs: unnamed intermediate "1a_output"
-Possible functions: rgdal::readogr, st::st_transform
+Outputs: unnamed intermediate "secondary_roads_proj"
+Corresponding QGIS workflow function: Reproject Secondary Roads
 ```{r}
+# Read in shapefile under stars package
+secondary_roads <- here("data", "raw", "public", "secondary_roads", "secondary_roads.shp") %>% st_read()
 
+# Reproject
+secondary_roads_proj <- st_transform(secondary_roads, crs=32736) %>% st_crop(st_bbox(lc_study_clip_proj))
 ```
 
-1b. Rasterize secondary roads.
+4b. Rasterize secondary roads.
 
-"1a output" (GEOMETRY FILE) --> [Rasterize]
-
-Inputs: "1a output"
+Inputs: "secondary_roads_proj"
 Outputs: unnamed intermediate "secondary_roads_raster"
-Possible functions: rgdal::readogr, stars::st_rasterize
-```{r}
+Corresponding QGIS workflow function: Rasterize secondary roads
 
+**Unplanned deviation**: As the function `st_rasterize` changed the resolution of the secondary_roads object to over 100x100, it was deemed necessary to create a blank stars raster ("blank") with a resolution of 10x10 to use as a `template` within the function. The code used to create the template is sourced from Holler et al. (2023) [unpublished]. 
+```{r}
+# Create blank stars raster template
+b <- st_bbox(c(xmin=833170.1, xmax=861050.1, ymin=9585512.5, ymax=9617152.5), crs=st_crs(32736)) %>% st_as_sfc()
+blank <- st_as_stars(b, dx=10, dy=10)
+blank[[1]][] = NA
+
+# Rasterize in stars package
+secondary_roads_raster <- st_rasterize(secondary_roads_proj, blank)
+
+# Use st_as_raster function to create a raster object
+# This function is sourced from user cbrown5 on GitHub
+
+# Load in cbrown5's function
+st_as_raster <- function(rstars){
+  rext <- st_bbox(rstars)
+  raster(t(rstars[[1]]), xmn = rext[1], xmx = rext[3],
+                   ymn = rext[2], ymx=rext[4],
+                   crs = st_crs(rstars)$proj4string)
+}
+
+# Apply function to stars raster
+secondary_roads_raster <- st_as_raster(secondary_roads_raster)
+
+# Clip raster to extent of study landcover
+secondary_roads_raster <- setExtent(secondary_roads_raster, extent(lc_study_clip_proj))
+
+# Resample raster in order to match the dimensions of landcover
+secondary_roads_raster <- resample(secondary_roads_raster, lc_study_clip_proj)
+
+# Reclassify values to achieve a binary raster
+secondary_roads_raster <- secondary_roads_raster %>% 
+  reclassify(cbind(NA, 0)) %>% 
+  reclassify(cbind(1, Inf, 1))
 ```
 
-2. Clip landcover by raster extent of initial_clip.
+5a. Reproject major roads.
 
-landcover (GEOMETRY FILE) [CLIP] initial_clip (GEOMETRY FILE)
+Inputs: "major_roads_vector"
+Outputs: unnamed intermediate "major_roads_proj"
+Corresponding QGIS workflow function: Reproject major roads
+```{r}
+# Read in major_roads shapefile under stars
+major_roads <- here("data", "raw", "public", "major_roads_vector", "major_roads_vector.shp") %>% st_read()
 
-Inputs: landcover, intial_clip
-Outputs: unnamed intermediate
-Possible functions: rgdal::readogr, raster::raster
+# Reproject 
+major_roads_proj <- major_roads %>% st_transform(crs=32736) %>% st_crop(st_bbox(lc_study_clip_proj))
+```
+
+5b. Rasterize and buffer major roads.
+
+Inputs: "major_roads_buffer"
+Outputs: unnamed intermediate "major_roads_raster"
+Corresponding QGIS workflow function: Buffer; Rasterize major roads
+```{r}
+# Rasterize stars object with blank template
+major_roads_raster <- st_rasterize(major_roads_proj, blank)
+
+# Convert to raster package object
+major_roads_raster <- st_as_raster(major_roads_raster)
+
+# Buffer by 300 meters
+major_roads_buffer <- buffer(major_roads_raster, width=300)
+
+# Resample to match dimensions of landcover
+major_roads_raster_proj <- resample(major_roads_buffer, lc_study_clip_proj)
+
+# Reclassify to achieve binary raster
+major_roads_raster_proj <- major_roads_raster_proj %>% 
+  reclassify(cbind(NA, 0)) %>% 
+  reclassify(cbind(1, Inf, 1))
+```
+
+6a. Reproject rural data (bomas).
+
+Inputs: "Bomas"
+Outputs: unnamed intermediate "bomas_proj"
+Corresponding QGIS workflow function: Reproject Rural
+```{r}
+# Read in bomas shapefile under stars
+bomas <- here("data", "raw", "public", "Bomas", "Bomas.shp") %>% st_read()
+
+# Reproject and fix invalid geometries
+bomas_proj <- bomas %>% st_transform(crs=32736) %>% st_make_valid() %>% st_crop(st_bbox(lc_study_clip_proj))
+```
+
+6b. Reproject buildings.
+
+Inputs: "merged_buildings"
+Outputs: unnamed intermediate "buildings_proj"
+Corresponding QGIS workflow function: Reproject Buildings
+```{r}
+# Read in buildings shapefile under stars
+buildings <- here("data", "raw", "public", "merged_buildings", "merged_buildings.shp") %>% st_read()
+
+# Reproject
+buildings_proj <- buildings %>% st_transform(crs=32736) %>% st_crop(st_bbox(lc_study_clip_proj))
+```
+
+6c. Merge vector layers.
 
 ```{r}
+bomas_proj <- bomas_proj[,2]
+buildings_proj <- buildings_proj[,c(13)]
 
+bbmerge <- bind_rows(bomas_proj, buildings_proj)
+
+bbmerge$id <- seq.int(nrow(bbmerge))
+
+bbmerge <- bbmerge %>% relocate(id)
+
+rural_building_merged <- st_as_sfc(rural_building_merged)
+
+write_stars(rural_building_merged, "rural_building_merged")
+```
+
+6d. Rasterize the merged layer.
+
+```{r}
+# Rasterize stars object with template
+buildings_merged_raster <- st_rasterize(rural_buidling_merged, blank)
+
+# Convert to raster package object
+bomas_raster <- st_as_raster(bomas_raster)
+
+# Resample to match resolution of landcover
+bomas_raster <- resample(bomas_raster, lc_study_clip_proj)
+
+# Clip to extent of study landcover
+bomas_raster <- setExtent(bomas_raster, extent(lc_study_clip_proj))
+```
+
+
+
+
+
+
+6c. Rasterize rural vector.
+
+Inputs: "bomas_proj"
+Outputs: unnamed intermediate "bomas_raster"
+Corresponding QGIS workflow function: N/A
+
+**Unplanned deviation**: The rural and buildings vector data are being rasterized before they are combined due to the easier nature of merging rasters as opposed to stars objects.
+```{r}
+# Rasterize stars object with template
+bomas_raster <- st_rasterize(bomas_proj, blank)
+
+# Convert to raster package object
+bomas_raster <- st_as_raster(bomas_raster)
+
+# Resample to match resolution of landcover
+bomas_raster <- resample(bomas_raster, lc_study_clip_proj)
+
+# Clip to extent of study landcover
+bomas_raster <- setExtent(bomas_raster, extent(lc_study_clip_proj))
+```
+
+6d. Rasterize buildings vector.
+
+Inputs: "buildings"
+Outputs: unnamed intermediate "buildings_raster"
+Corresponding QGIS workflow function: N/A
+
+```{r}
+# Rasterize stars object with template
+buildings_raster <- st_rasterize(buildings_proj, blank)
+
+write_stars(buildings_raster, "repro_buildings_raster")
+
+# Convert to raster object
+buildings_raster <- st_as_raster(buildings_raster)
+
+# Clip to extent of landcover
+buildings_raster <- setExtent(buildings_raster, extent(lc_study_clip_proj))
+
+# Resample to resolution of landcover
+buildings_raster <- resample(buildings_raster, lc_study_clip_proj)
+```
+
+6e. Union the rural and buildings rasters.
+
+Inputs: "bomas_raster", "buildings_raster"
+Outputs: unnamed intermediate "merged"
+Corresponding QGIS workflow function: Rasterize buildings
+```{r}
+merged <- overlay(bomas_raster, buildings_raster, fun=function(x,y) { return(x | y) })
+
+# Reclassify to change buildings/rural to 1 but keep nodata values for the distance function
+merged <- merged %>% 
+  reclassify(cbind(1, Inf, 1))
+```
+
+6f. Create a proximity raster.
+
+Inputs: "merged"
+Outputs: unnamed intermediate "buildings_prox"
+Corresponding QGIS workflow function: Proximity raster (SAGA function)
+```{r}
+buildings_prox <- distance(merged)
+```
+
+6g. Reclassify proximity raster by table.
+
+Inputs: "buildings_prox"
+Outputs: unnamed intermediate "buildings_prox_reclass"
+Corresponding QGIS workflow function: Reclassify by table
+```{r}
+# Create 6x3 table of values with which to reclassify
+# Data source: the QGIS workflow
+
+# Create columns
+c1_prox <- c(0,1,50,100,150,200)
+c2_prox <- c(1,50,100,150,200,Inf)
+c3_prox <- c(1,0.8,0.6,0.4,0.2,0)
+
+# Create matrix using columns
+reclass_table_prox <- as.matrix(data.frame(c1_prox, c2_prox, c3_prox))
+
+# Reclassify raster
+buildings_prox_reclass <- reclassify(buildings_prox, reclass_table_prox)
+```
+
+7. Rasterize buffer zone.
+
+Inputs: "buffer_region"
+Outputs: unnamed intermediate "buffer_raster"
+Corresponding QGIS workflow function: Rasterize buffer zone
+```{r}
+# Read in shapefile under stars
+buffer <- here("data", "raw", "public", "buffer_region", "buffer_region.shp") %>% st_read()
+
+# Reproject
+buffer_proj <- buffer %>% st_transform(crs=32736) %>% st_crop(st_bbox(lc_study_clip_proj))
+
+# rasterize with stars
+buffer_raster <- st_rasterize(buffer_proj, blank)
+
+# convert to raster object
+buffer_raster <- st_as_raster(buffer_raster)
+
+# Resample to resolution of landcover
+buffer_raster <- resample(buffer_raster, lc_study_clip_proj)
+
+# Clip to extent of study landcover and reclassify 
+buffer_raster <- buffer_raster %>% 
+  setExtent(extent(lc_study_clip_proj)) %>%
+  reclassify(cbind(1, Inf, 1)) %>%
+  reclassify(cbind(NA, 0))
+```
+
+8a. Compute cost surface.
+
+Inputs: "major_roads_raster" [A], "secondary_roads_raster" [B], "buildings_prox_reclass" [C], "lc_reclass" [D], "buffer_raster" [E]
+Outputs: unnamed intermediate "cost_unclip"
+Corresponding QGIS workflow function: Raster calculator cost
+```{r}
+A <- major_roads_raster_proj
+B <- secondary_roads_raster
+C <- buildings_prox_reclass
+D <- lc_reclass
+E <- buffer_raster
+
+cost_unclip <- (A+(0.25*B)+C+D+E)/4
+```
+
+9. Compare cost surface with output from original extension study.
+
+Inputs: "DD_Cost_6", "DDclipped_cost"
+```{r}
+cost6 <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
+
+cost6 <- resample(cost6, pixel_default)
+DDclipped_cost <- resample(cost_unclip, pixel_default)
+
+diff <- overlay(cost6, DDclipped_cost, fun=function(cost6, DDclipped_cost){return(cost6-DDclipped_cost)},
+                filename="9difference", overwrite=T)
+
+plot(diff)
 ```
 
