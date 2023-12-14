@@ -1,5 +1,7 @@
 # Title of Study
 
+Reproduction of Least Cost Model for Makuyuni Wildlife Corridor from Lyimo et al. (2023)
+
 ## Contributors
 
 - Emmanuel H. Lyimo<sup>1</sup>\*, email address, [ORCID link](https://orcid.org/0000-0002-5750-8636), College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
@@ -33,7 +35,7 @@ This study is a reproduction of unpublished research by Emmanual H Lyimo et al (
 - `Key words`: multifactor analysis, least cost pathway, wildlife corridor, movement cost, line transect sampling, Makuyuni, Tarangire National Park, Essmingor National Forest Reserve, Tanzania
 - `Subject`: Social and Behavioral Sciences: Geography: Nature and Society Relations
 - `Date created`: 2023-11-30
-- `Date modified`: 2023-11-30
+- `Date modified`: 2023-12-13
 - `Spatial Coverage`: Makuyuni Wildlife Corridor, Tanzania
 - `Spatial Resolution`: 10 meter resolution
 - `Spatial Reference System`: EPSG 32736
@@ -197,8 +199,6 @@ For each data layer, the authors have investigated extent and other properties i
 
 ### Bias and threats to validity
 
-Given the research design and primary data to be collected and/or secondary data to be used, discuss common threats to validity and the approach to mitigating those threats, with an emphasis on geographic threats to validity.
-
 The main threat is boundary/edge effects, which can be mitigated by adding an extremely high cost to the land outside of the study site or buffering the start and end regions (for accumulated cost analysis). This is to avoid a pathway traveling around the study site.
 
 ### Data transformations
@@ -207,6 +207,7 @@ The main threat is boundary/edge effects, which can be mitigated by adding an ex
 - Clip major roads to study site
 - Reproject major roads
 - Rasterize major roads
+- 
 
 ### Analysis
 
@@ -224,8 +225,7 @@ Describe how the results are to be interpreted *vis a vis* each hypothesis or re
 
 ## Integrity Statement
 
-Include an integrity statement - The authors of this preregistration state that they completed this preregistration to the best of their knowledge and that no other preregistration exists pertaining to the same hypotheses and research.
-If a prior registration *does* exist, explain the rationale for revising the registration here.
+The authors of this preregistration state that they completed this preregistration to the best of their knowledge and that no other preregistration exists pertaining to the same hypotheses and research.
 
 This report is based upon the template for Reproducible and Replicable Research in Human-Environment and Geographical Sciences, DOI:[10.17605/OSF.IO/W29MQ](https://doi.org/10.17605/OSF.IO/W29MQ)
 

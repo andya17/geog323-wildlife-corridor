@@ -313,15 +313,37 @@ cost_unclip <- (A+(0.25*B)+C+D+E)/4
 9. Compare cost surface with output from original extension study.
 
 Inputs: "DD_Cost_6", "DDclipped_cost"
+Output: "diff"
+Corresponding QGIS workflow function: N/A
 ```{r}
+# Read in "DD_Cost_6.tif", the presumed cost raster output of the QGIS workflow, under raster
 cost6 <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
 
+# Resample to appropriate resolution
 cost6 <- resample(cost6, pixel_default)
+
+# Resample cost raster to appropriate resolution
 DDclipped_cost <- resample(cost_unclip, pixel_default, filename="repro_cost", overwrite=T)
 
+# Overlay the rasters and subtract the reproduction cost raster from the original cost raster
 diff <- overlay(cost6, DDclipped_cost, fun=function(cost6, DDclipped_cost){return(cost6-DDclipped_cost)},
                 filename="9difference", overwrite=T)
-
-plot(diff)
 ```
+
+10. Visualize difference between cost rasters. 
+
+Inpust: "diff"
+Outputs: N/A
+Corresponding QGIS workflow function: N/A
+```{r}
+# The 
+
+
+
+
+
+```
+
+## Results write-up
+
 
