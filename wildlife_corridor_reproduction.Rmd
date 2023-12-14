@@ -208,104 +208,40 @@ buildings_proj <- buildings %>% st_transform(crs=32736) %>% st_crop(st_bbox(lc_s
 6c. Merge vector layers.
 
 ```{r}
+# Limit columns to just geometry
 bomas_proj <- bomas_proj[,2]
 buildings_proj <- buildings_proj[,c(13)]
 
+# Bind rows together
 bbmerge <- bind_rows(bomas_proj, buildings_proj)
-
-bbmerge$id <- seq.int(nrow(bbmerge))
-
-bbmerge <- bbmerge %>% relocate(id)
-
-rural_building_merged <- st_as_sfc(rural_building_merged)
-
-write_stars(rural_building_merged, "rural_building_merged")
 ```
 
 6d. Rasterize the merged layer.
 
 ```{r}
 # Rasterize stars object with template
-buildings_merged_raster <- st_rasterize(rural_buidling_merged, blank)
+buildings_merged_raster <- st_rasterize(bbmerge, blank)
 
 # Convert to raster package object
-bomas_raster <- st_as_raster(bomas_raster)
+buildings_merged_raster <- st_as_raster(buildings_merged_raster)
 
 # Resample to match resolution of landcover
-bomas_raster <- resample(bomas_raster, lc_study_clip_proj)
+buildings_merged_raster <- resample(buildings_merged_raster, lc_study_clip_proj)
 
 # Clip to extent of study landcover
-bomas_raster <- setExtent(bomas_raster, extent(lc_study_clip_proj))
+buildings_merged_raster <- setExtent(buildings_merged_raster, extent(lc_study_clip_proj))
 ```
 
 
+Percent overlap - might need 100% to count
 
-
-
-
-6c. Rasterize rural vector.
-
-Inputs: "bomas_proj"
-Outputs: unnamed intermediate "bomas_raster"
-Corresponding QGIS workflow function: N/A
-
-**Unplanned deviation**: The rural and buildings vector data are being rasterized before they are combined due to the easier nature of merging rasters as opposed to stars objects.
-```{r}
-# Rasterize stars object with template
-bomas_raster <- st_rasterize(bomas_proj, blank)
-
-# Convert to raster package object
-bomas_raster <- st_as_raster(bomas_raster)
-
-# Resample to match resolution of landcover
-bomas_raster <- resample(bomas_raster, lc_study_clip_proj)
-
-# Clip to extent of study landcover
-bomas_raster <- setExtent(bomas_raster, extent(lc_study_clip_proj))
-```
-
-6d. Rasterize buildings vector.
-
-Inputs: "buildings"
-Outputs: unnamed intermediate "buildings_raster"
-Corresponding QGIS workflow function: N/A
-
-```{r}
-# Rasterize stars object with template
-buildings_raster <- st_rasterize(buildings_proj, blank)
-
-write_stars(buildings_raster, "repro_buildings_raster")
-
-# Convert to raster object
-buildings_raster <- st_as_raster(buildings_raster)
-
-# Clip to extent of landcover
-buildings_raster <- setExtent(buildings_raster, extent(lc_study_clip_proj))
-
-# Resample to resolution of landcover
-buildings_raster <- resample(buildings_raster, lc_study_clip_proj)
-```
-
-6e. Union the rural and buildings rasters.
-
-Inputs: "bomas_raster", "buildings_raster"
-Outputs: unnamed intermediate "merged"
-Corresponding QGIS workflow function: Rasterize buildings
-```{r}
-merged <- overlay(bomas_raster, buildings_raster, fun=function(x,y) { return(x | y) })
-
-# Reclassify to change buildings/rural to 1 but keep nodata values for the distance function
-merged <- merged %>% 
-  reclassify(cbind(1, Inf, 1))
-```
-
-6f. Create a proximity raster.
+6e. Create a proximity raster.
 
 Inputs: "merged"
 Outputs: unnamed intermediate "buildings_prox"
 Corresponding QGIS workflow function: Proximity raster (SAGA function)
 ```{r}
-buildings_prox <- distance(merged)
+buildings_prox <- distance(buildings_merged_raster)
 ```
 
 6g. Reclassify proximity raster by table.
@@ -326,7 +262,9 @@ c3_prox <- c(1,0.8,0.6,0.4,0.2,0)
 reclass_table_prox <- as.matrix(data.frame(c1_prox, c2_prox, c3_prox))
 
 # Reclassify raster
-buildings_prox_reclass <- reclassify(buildings_prox, reclass_table_prox)
+buildings_prox_reclass <- reclassify(buildings_prox, reclass_table_prox, right=F, filename="buildings_prox", overwrite=T)
+
+plot(buildings_prox_reclass)
 ```
 
 7. Rasterize buffer zone.
@@ -379,7 +317,7 @@ Inputs: "DD_Cost_6", "DDclipped_cost"
 cost6 <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
 
 cost6 <- resample(cost6, pixel_default)
-DDclipped_cost <- resample(cost_unclip, pixel_default)
+DDclipped_cost <- resample(cost_unclip, pixel_default, filename="repro_cost", overwrite=T)
 
 diff <- overlay(cost6, DDclipped_cost, fun=function(cost6, DDclipped_cost){return(cost6-DDclipped_cost)},
                 filename="9difference", overwrite=T)
