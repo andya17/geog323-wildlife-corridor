@@ -21,7 +21,7 @@ library(stringr)
 1. Clip landcover by extent of bounding box.
 
 Inputs: "landcover", "bounding_box"
-Outputs: unnamed intermediate - "lc_study_clip"
+Outputs: unnamed intermediate output "lc_study_clip"
 Corresponding QGIS workflow function: Clip landcover by study site
 
 **Unplanned deviation**: We are clipping the land cover .tif file based on the bounding box instead of the "initial clip" file because the landcover was clipped twice.
@@ -42,7 +42,7 @@ lc_study_clip <- mask(crop(landcover, extent(bounds)), bounds)
 2. Warp (reproject) landcover.
 
 Inputs: initial_raster_clip, pixel_size
-Outputs: unnamed_intermediate "initial_raster_clip_proj"
+Outputs: unnamed intermediate output "initial_raster_clip_proj"
 Corresponding QGIS workflow function: Warp (reproject)
 
 **Unplanned deviation**: The landcover raster was resampled to a constructed raster with a resolution of 10x10 m to account for the pixel size input. Within the QGIS workflow, the pixel size has a minimum value of 70 and a maximum value of 100 (assumed units are meters). In contrast, the manuscript states that rasters had a resolution of 10x10 m. Pixel size is a variable whose value can be altered when running the least cost model, and it is assumed that Lucas used a value of 10 when creating the least cost raster contained within the "DD_Cost_6" file (Prof. Holler, personal communication, 12/11/2023).
@@ -345,5 +345,7 @@ Corresponding QGIS workflow function: N/A
 ```
 
 ## Results write-up
+
+The main result of this workflow is the creation of a cost surface raster
 
 
