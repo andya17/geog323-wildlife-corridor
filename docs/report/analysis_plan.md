@@ -61,34 +61,43 @@ We will look through their data, workflows, and models and reproduce their Figur
 
 ### Computational environment
 
-Hardware: MacBook Air M1 2020; MacOS 13.4 (22F66)
+Hardware: MacBook Air 2020; MacOS 13.4 (22F66)
 
 R Version 2023.06.2+561 (2023.06.2+561)
 
 R packages used:
+- groundhog
+- here
 - raster
 - stars
 - sf
-
-Define the hardware, operating system, and software requirements for the research.
-Include citations to important software projects, plugins or packages and their versions.
+- stringr
 
 ### Data and variables
 
-Describe the **data sources** and **variables** to be used.
-Data sources may include plans for observing and recording **primary data** or descriptions of **secondary data**.
-For secondary data sources with numerous variables, the analysis plan authors may focus on documenting only the variables intended for use in the study.
+Most input data sources for the study are secondary. The least cost output of the QGIS model is primary in that it was created by Lucas.
 
-Primary data sources for the study are to include ... .
-Secondary data sources for the study are to include ... .
+#### Least cost raster (DD_Cost_6.tif)
 
-Each of the next subsections describes one data source.
+- `Abstract`: This is one of the outputs of the QGIS model created by Justin Lucas. It is a least cost raster of the 
+- `Spatial Coverage`: The data source pertains to the study site and a buffer zone surrounding the site.
+- `Spatial Resolution`: 10 m
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: This file is equivalent to the output of the QGIS model. The model included on the Google Drive as "finalmodel.model3". Running the model will produce a file named "DDclipped_cost". We assume that one instance of this file was named "DD_Cost_6" at some point before being uploaded to the Google Drive, since cost values are identical in both files.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: The band shows the calculated least cost for an animal to travel across a given pixel.
 
-#### landcover.tif
+Secondary data sources for the study are delineated below.
+
+#### Landcover (landcover.tif)
 
 - `Abstract`: This is a land cover raster for the entirety of Tanzania.
 - `Spatial Coverage`: The data source pertains to the whole country.
-- `Spatial Resolution`: 4.77m
+- `Spatial Resolution`: 4.77 m
 - `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
 - `Temporal Coverage`: 2023
 - `Temporal Resolution`: Not applicable
@@ -105,25 +114,10 @@ Each of the next subsections describes one data source.
   - 6 (gray): built-up
   - 7 (tan): bareland
   - 8 (teal): wetland
+  
+#### Bounding box (bounding_box.shp)
 
-#### adjusted_studysite
-
-- `Abstract`: This is a shapefile for the study site (i.e. the Makuyuni Wildlife Corridor)
-- `Spatial Coverage`: The data source pertains to Makuyuni Wildlife Corridor.
-- `Spatial Resolution`: Unknown
-- `Spatial Extent`: 833295.2141958434367552,9588552.1709635984152555 : 858831.0715981726534665,9615078.0293724834918976
-- `Spatial Reference System`: EPSG:32736 - WGS 84 / UTM zone 36S - Projected
-- `Temporal Coverage`: Unknown, presumed 2023
-- `Temporal Resolution`: Not applicable
-- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
-- `Distribution`: This was shared by the original authors.
-- `Constraints`: Unknown
-- `Data Quality`: No planned quality assessment.
-- `Variables`: The shapefile is filled with a Simple Fill and has no land cover data.
-
-#### bounding_box
-
-- `Abstract`: This is a shapefile which was "used to create [a] buffer to prevent edge effects", per Justin Lucas. It extends past the boundaries of adjusted_studysite when the shapefiles are visualized together.
+- `Abstract`: This is a shapefile which was "used to create [a] buffer to prevent edge effects", per Lucas. It extends past the boundaries of adjusted_studysite when the shapefiles are visualized together.
 - `Spatial Coverage`: The data source pertains to land surrounding Makuyuni Wildlife Corridor and the corridor itself.
 - `Spatial Resolution`: Unknown
 - `Spatial Extent`: 833295.2141958434367552,9585634.2357019279152155 : 860913.8547548535279930,9617039.8727052193135023
@@ -135,8 +129,32 @@ Each of the next subsections describes one data source.
 - `Constraints`: Unknown
 - `Data Quality`: No planned quality assessment.
 - `Variables`: The shapefile is filled with a Simple Fill and has no land cover data.
+  
+#### Pixel size
 
-#### secondary_roads
+- `Abstract`: This is a variable within the QGIS model which is used in specifying resolution when rasterizing vector data. It is stated to have a default value of 70 (presumed meters), but we noted that the text of the original study stated that resolution was 10x10 meters. We therefore did not use this input but are recording its presence for transparency.
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: Pixel size has a default value of 70 meters and maximum value of 100 meters.
+
+#### Initial clip (initial_clip.shp)
+
+- `Abstract`: Indicated to be the combination of Microsoft AI building generation and OpenStreetMap buildings.
+- `Spatial Coverage`: The study site.
+- `Spatial Extent`: 24.9389406999999999,-33.9686420999999967 : 36.7868238000000005,-1.4968789000000000
+- `Spatial Reference System`: EPSG:4326 - WGS 84
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+
+#### Secondary roads (secondary_roads.shp)
 
 - `Abstract`: This is a shapefile which is described as containing "all tracks and roads that were within the study area aside from the two major highways" by Justin Lucas. The shapefile contains line geometries and has 176 total features.
 - `Spatial Coverage`: The data source pertains to land surrounding Makuyuni Wildlife Corridor and the corridor itself.
@@ -149,23 +167,8 @@ Each of the next subsections describes one data source.
 - `Distribution`: This was shared by the original authors.
 - `Constraints`: Unknown
 - `Data Quality`: No planned quality assessment.
-- `Variables`: Roads are filled with a Simple Fill and there are no associated land cover data.
 
-#### Bomas
-
-- `Abstract`: This is a shapefile which ostensibly contains locations of bomas, or livestock enclosures, within the wildlife corridor.
-- `Spatial Coverage`: The data source pertains to land within the wildlife corridor.
-- `Spatial Extent`: 4007605.1797135984525084,-412580.2386067652842030 : 4032954.7106412472203374,-387445.8448925596894696
-- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
-- `Temporal Coverage`: Unknown, presumed 2023
-- `Temporal Resolution`: Not applicable
-- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas. 
-- `Distribution`: This was shared by the original authors.
-- `Constraints`: Unknown
-- `Data Quality`: No planned quality assessment.
-- `Variables`: Bomas are filled with a Simple Fill and there are no associated land cover data.
-
-#### major_roads_vector
+#### Major roads (major_roads.shp)
 
 - `Abstract`: This is a shapefile which contains "two highways that run through the study area", per Justin Lucas.
 - `Spatial Coverage`: The data source pertains to the entirety of the extent of the highways, which extend far past the study site and outside of Tanzania to the north and south.
@@ -177,25 +180,41 @@ Each of the next subsections describes one data source.
 - `Distribution`: This was shared by the original authors.
 - `Constraints`: Unknown
 - `Data Quality`: No planned quality assessment.
-- `Variables`: The highways are filled with a Simple Fill and there are no associated land cover data.
+
+#### Buildings (merged_buildings.shp)
+
+- `Abstract`: Indicated to be the combination of Microsoft AI building generation and OpenStreetMap buildings.
+- `Spatial Coverage`: The study site.
+- `Spatial Extent`: 24.9389406999999999,-33.9686420999999967 : 36.7868238000000005,-1.4968789000000000
+- `Spatial Reference System`: EPSG:4326 - WGS 84
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+
+#### Bomas (bomas.shp)
+
+- `Abstract`: This is a shapefile which ostensibly contains locations of bomas, or livestock enclosures, within the wildlife corridor. It is also referred to with the term "rural".
+- `Spatial Coverage`: The data source pertains to land within the wildlife corridor.
+- `Spatial Extent`: 4007605.1797135984525084,-412580.2386067652842030 : 4032954.7106412472203374,-387445.8448925596894696
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas. 
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+
+
+Note: while "start_region.shp" and "end_region.shp" are included as inputs to the QGIS model, we did not work with these files due to their relevance to an accumulated cost surface raster rather than a least cost surface raster (i.e., there do not need to be defined start and end regions for a determination of cost). As mentioned above, the QGIS model does not contain all steps to create such an output.
 
 ### Prior observations  
 
-Prior experience with the study area, prior data collection, or prior observation of the data can compromise the validity of a study, e.g. through p-hacking.
-Therefore, disclose any prior experience or observations at the time of study pre-registration here, with example text below:
+This study is not related to any prior studies by the authors.
 
-At the time of this study pre-registration, the authors had no prior knowledge of the geography of the study region with regards to the phenomena to be studied.
-This study is related to 0 prior studies by the authors.
-
-For each primary data source, declare the extent to which authors had already engaged with the data:
-
-- [ ] no data collection has started
-- [ ] pilot test data has been collected
-- [ ] data collection is in progress and data has not been observed
-- [ ] data collection is in progress and __% of data has been observed
-- [x] data collection is complete and data has been observed. Explain how authors have already manipulated / explored the data.
-
-For each data layer, the authors have investigated extent and other properties in QGIS.
+For each data layer, the authors have only investigated extent and other properties in QGIS.
 
 ### Bias and threats to validity
 
@@ -207,7 +226,6 @@ The main threat is boundary/edge effects, which can be mitigated by adding an ex
 - Clip major roads to study site
 - Reproject major roads
 - Rasterize major roads
-- 
 
 ### Analysis
 

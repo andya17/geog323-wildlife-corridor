@@ -1,0 +1,143 @@
+---
+title: "wildlife_corridor_raster"
+author: "Andy Atallah"
+date: "2023-12-07"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+# Install packages
+library(tidyverse)
+library(here)
+library(sf)
+library(stars)
+#library(rgdal)
+library(raster)
+```
+
+1a. Reproject secondary roads to CRS=32736.
+
+secondary_roads (GEOMETRY FILE) --> [Reproject] to EPSG:32736 - WGS 84 / UTM zone 36S
+
+Inputs: secondary_roads
+Outputs: unnamed intermediate "output_1a"
+Possible functions: sf::read_sf, raster::shapefile, st::st_transform
+```{r}
+secondary_roads <- here("data", "raw", "public", "secondary_roads", "secondary_roads.shp") %>% shapefile()
+
+output_1a <- projectRaster(secondary_roads, crs=32736)
+
+```
+
+1b. Rasterize secondary roads.
+
+"output 1a" (GEOMETRY FILE) --> [Rasterize]
+
+Inputs: "output_1a"
+Outputs: unnamed intermediate "secondary_roads_raster"
+Possible functions: stars::st_rasterize
+```{r}
+secondary_roads_raster <- st_rasterize(output_1a)
+```
+
+2. Clip landcover by raster extent of initial_clip.
+
+landcover (GEOMETRY FILE) [CLIP] initial_clip (GEOMETRY FILE)
+
+Inputs: landcover, intial_clip "ic"
+Outputs: unnamed intermediate "initial_raster_clip"
+Possible functions: raster::raster
+
+Unplanned deviation: we're clipping based on bounding_box instead of initial_clip because the LC was clipped twice with no meaningful steps in between.
+```{r}
+landcover <- here("data", "raw", "public", "landcover (1).tif")  %>% read_stars()
+
+bounds <- here("data", "raw", "public", "bounding_box") %>% st_read()
+
+bounds <- bounds %>% st_transform(st_crs(landcover)) 
+
+lc_study_clip <- st_crop(landcover, bounds, crop=T)
+
+#ic <- here("data", "raw", "public", "initial_clip", "initial clip.shp") %>% st_read()
+
+#ic <- ic %>% st_transform(st_crs(landcover)) 
+#initial_raster_clip <- st_crop(landcover, ic, crop=T)
+
+#initial_raster_clip <- mask(crop(landcover, extent(ic)), ic)
+```
+
+3a. Warp (reproject) output_2a ["initial_raster_clip"] to CRS=32736.
+
+Inputs: initial_raster_clip
+Outputs: unnamed_intermediate "initial_raster_clip_proj"
+Possible functions: raster::projectRaster
+```{r}
+st_crs(lc_study_clip)
+
+st_as_stars(raster(lc_study_clip), proxy=F)
+
+lc_study_clip_proj <- st_transform(lc_study_clip, crs=32736)
+
+# It already was 32736
+```
+
+3b. Clip landcover by study site. 
+
+Inputs: bounding_box, "initial_raster_clip_proj"
+Outputs: unnamed intermediate "lc_study_clip"
+Possible functions: raster::mask, raster::crop
+
+```{r}
+#Already completed in 2.
+```
+
+4a. Reclassify landcover by table.
+
+Inputs: "lc_study_clip"
+Outputs: unnamed intermediate "lc_reclass"
+Possible functions: raster::reclassify
+```{r}
+# Create 3x10 table of values with which to reclassify
+# Data source: the online Google Drive folder flowchart
+
+c1 <- c(0,1,2,3,4,5,6,7,8,9)
+c2 <- c(0,1,2,3,4,5,6,7,8,255)
+c3 <- c(0,0.75,0,0.25,0,0.25,1,0.5,0.25,0)
+reclass_table <- as.matrix(data.frame(c1, c2, c3))
+
+lc_reclass <- reclassify(lc_study_clip, reclass_table)
+```
+
+
+
+
+
+
+
+
+
+
+6a. Rasterize buffer zone.
+
+Inputs: "buffer_region"
+Outputs: unnamed intermediate "buffer_raster"
+Possible functions: raster::raster
+```{r}
+buffer_zone <- here("data", "raw", "public", "buffer_region") %>% st_read()
+
+buffer_raster <- st_rasterize(buffer_zone)
+```
+
+
+
+
+
+
+7. 
+
+
+
+
+

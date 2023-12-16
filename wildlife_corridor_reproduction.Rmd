@@ -1,5 +1,5 @@
 ---
-title: "wildlife_corridor.rmd"
+title: "Reproduction of Least Cost Model for Makuyuni Wildlife Corridor from Lyimo et al. (2023)"
 author: "Alana Lutz, Andy Atallah"
 date: "2023-11-30"
 output: html_document
@@ -7,16 +7,242 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r}
-# Install packages
-library(tidyverse) # Pipe function
-library(here)
-library(sf)
-library(stars)
-library(raster)
-library(terra)
-library(stringr)
+# Abstract
+
+This study is a **reproduction** of one part of:
+
+> Lyimo, E. H., Mayengo, G. M., Castico, D. J., Nguma, D., Martin, E. H., Hariohay, K. M., Kisingo, A. W., Lucas, J., Kimambo, N., & Holler, J. (2023). Makuyuni Wildlife Corridor: Analysis of the Effects of Socioecological Interactions and Changing Land Use on Movement Patterns of Large Mammal Species [Draft]. https://docs.google.com/document/d/1-RP3a5NUJcFMskoWzuZzMz4x-JI5DeKz/.
+
+Specifically, this reproduction study is mostly concerned with the work of Justin Lucas, who added "extension data" and results to the original study. Lucas produced a least cost surface, an accumulated cost surface, and a wildlife corridor visualization for Makuyuni Wildlife Corridor in Tanzania, the study area of Lyimo et al. (2023). To do so, he built a "least cost model" in QGIS Model Builder. We aimed to reproduce the least cost surface portion of the extension results in R by following the QGIS model workflow as closely as possible. We found that while we were able to produce a least cost raster in R, the cost values did not exactly match with those in the raster by Lucas. This discrepancy may be attributed to differences in computational environment and may not carry a simple solution. We hope that this reproduction study is able to provide the start of a translation of the results of the original study to R.
+
+# Study metadata
+
+- `Key words`: least cost surface, wildlife corridor, movement cost, line transect sampling, Makuyuni Wildlife Corridor, Tarangire National Park, Essmingor National Forest Reserve, Tanzania
+- `Subject`: Social and Behavioral Sciences: Geography: Nature and Society Relations
+- `Date created`: 2023-11-30
+- `Date modified`: 2023-12-15
+- `Spatial Coverage`: Makuyuni Wildlife Corridor, Tanzania
+- `Spatial Resolution`: 10 meter
+- `Spatial Reference System`: EPSG 32736
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`: Not applicable
+
+## Original study spatio-temporal metadata
+
+- `Spatial Coverage`: Makuyuni Wildlife Corridor, Tanzania
+- `Spatial Resolution`: 10 meter
+- `Spatial Reference System`: EPSG 32736
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`:  Not applicable
+
+# Study design
+
+This is a reproduction study of Lyimo et al. (2023), an unpublished manuscript in which the authors create and analyze least cost pathways for wildlife for Makuyuni Wildlife Corridor in Tanzania. 
+
+The original study is **observational** in that the authors use a model to estimate the cost of wildlife movement and establish transects from which to observe wildlife presence and location for model evaluation. The authors do not indicate modifications of the environment in the study area nor delineation of experimental groups for animal individuals (FIU 2023).
+
+One of the main portions of the workflow for Lyimo et al. (2023) is a least cost model created in QGIS by Justin Lucas, one of the study authors. This model produces a least cost surface by incorporating assigned costs for **major roads**, **secondary roads**, **land cover**, proximity to **buildings**, and the location of a **buffer zone** around the study area. The model frequently involves reprojection, rasterization, and reclassification of input files, which mostly contain vector data. One of the final steps for the creation of the least cost surface is a raster calculator function which uses the 5 types of data above to produce cost values. While the model includes information on start and end regions, we did not find it to contain steps to produce an accumulated cost raster or least cost pathways, which are features of the Lyimo et al. (2023). We chose to focus on reproducing only the least cost surface raster.
+
+Both authors of the reproduction study worked together to reproduce the QGIS model steps in RStudio. After difficulties staying within one package, we opted to use whichever spatial analysis packages would allow for a close reproduction of the QGIS functions. After Smith and Holler (2023), our hypothesis for this reproduction study is that the reproduced least cost surface raster (created in R) and the output of the QGIS model will not be identical. We will evaluate the differences between these rasters through map algebra. In other words, an output raster created from the subtraction of our R-based raster from the original QGIS-based raster will contain values other than 0, indicating that there are differences in cost values between the rasters.
+
+# Materials and procedure
+
+Dr. Joseph Holler, one of the study authors, provided us access to a Google shared drive which contained relevant files for the least cost model. One important document in this environment was the "content directory", in which Lucas indicated which files in the "extension data" folder served as inputs to the QGIS model. We downloaded files to desktop computers which had QGIS version 13.28 installed and ran the model to evaluate its outputs. We determined the least cost raster output to be the same raster as the Google Drive file entitled "DD_Cost_6.tif". This was thus the file we aimed to reproduce. 
+
+RStudio analysis was conducted on a 2020 Macbook Air running macOS Ventura version 13.4. After tests with the raster and stars packages, we concluded that we would pursue a reproduction of the raster using both of these packages. Steps in the workflow below are intended to follow the QGIS model steps. We indicate any corresponding steps before each code section.
+
+## Computational environment
+
+```{r environment-setup, include = FALSE}
+# record all the packages you are using here
+# this includes any calls to library(), require(),
+# and double colons such as here::i_am()
+packages <- c("tidyverse", "here", "sf", "stars", "raster", "stringr")
+
+# force all conflicts to become errors
+# if you load dplyr and use filter(), R has to guess whether you mean dplyr::filter() or stats::filter()
+# the conflicted package forces you to be explicit about this
+# disable at your own peril
+# https://conflicted.r-lib.org/
+require(conflicted)
+
+# load and install required packages
+# https://groundhogr.com/
+if (!require(groundhog)) {
+  install.packages("groundhog")
+  require(groundhog)
+}
+
+# this date will be used to determine the versions of R and your packages
+# it is best practice to keep R and its packages up to date
+groundhog.day <- "2023-12-10"
+set.groundhog.folder("../../data/scratch/groundhog/")
+
+# this replaces any library() or require() calls
+groundhog.library(packages, groundhog.day)
+# you may need to install a correct version of R
+# you may need to respond OK in the console to permit groundhog to install packages
+# you may need to restart R and rerun this code to load installed packages
+# In RStudio, restart r with Session -> Restart Session
+
+# record the R processing environment
+# alternatively, use devtools::session_info() for better results
+writeLines(
+  capture.output(sessionInfo()),
+  here("procedure", "environment", paste0("r-environment-", Sys.Date(), ".txt"))
+)
+
+# save package citations
+knitr::write_bib(c(packages, "base"), file = here("software.bib"))
+
+# set up default knitr parameters
+# https://yihui.org/knitr/options/
+knitr::opts_chunk$set(
+  echo = FALSE, # Run code, show outputs (don't show code)
+  fig.retina = 4,
+  fig.width = 8,
+  fig.path = paste0(here("results", "figures"), "/")
+)
 ```
+
+## Data and variables
+
+Most input data sources for the study are secondary. The least cost output of the QGIS model is primary in that it was created by Lucas.
+
+### Least cost raster (DD_Cost_6.tif)
+
+- `Abstract`: This is one of the outputs of the QGIS model created by Justin Lucas. It is a least cost raster of the 
+- `Spatial Coverage`: The data source pertains to the study site and a buffer zone surrounding the site.
+- `Spatial Resolution`: 10 m
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: This file is equivalent to the output of the QGIS model. The model included on the Google Drive as "finalmodel.model3". Running the model will produce a file named "DDclipped_cost". We assume that one instance of this file was named "DD_Cost_6" at some point before being uploaded to the Google Drive, since cost values are identical in both files.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: The band shows the calculated least cost for an animal to travel across a given pixel.
+
+Secondary data sources for the study are delineated below.
+
+### Landcover (landcover.tif)
+
+- `Abstract`: This is a land cover raster for the entirety of Tanzania.
+- `Spatial Coverage`: The data source pertains to the whole country.
+- `Spatial Resolution`: 4.77 m
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the following paper: Song, L., Estes, A. B., & Estes, L. D. (2023). A super-ensemble approach to map land cover types with high resolution over data-sparse African savanna landscapes. International Journal of Applied Earth Observation and Geoinformation, 116, 103152. https://doi.org/10.1016/j.jag.2022.103152
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: Band 1 is land cover. The classification scheme is established by Song et al. (2023).
+  - 1 (orange): cropland
+  - 2 (dark green): forest/dense tree
+  - 3 (light green): grassland
+  - 4 (green): shrubland
+  - 5 (blue): water
+  - 6 (gray): built-up
+  - 7 (tan): bareland
+  - 8 (teal): wetland
+  
+### Bounding box (bounding_box.shp)
+
+- `Abstract`: This is a shapefile which was "used to create [a] buffer to prevent edge effects", per Lucas. It extends past the boundaries of adjusted_studysite when the shapefiles are visualized together.
+- `Spatial Coverage`: The data source pertains to land surrounding Makuyuni Wildlife Corridor and the corridor itself.
+- `Spatial Resolution`: Unknown
+- `Spatial Extent`: 833295.2141958434367552,9585634.2357019279152155 : 860913.8547548535279930,9617039.8727052193135023
+- `Spatial Reference System`: EPSG:32736 - WGS 84 / UTM zone 36S
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: The shapefile is filled with a Simple Fill and has no land cover data.
+  
+### Pixel size
+
+- `Abstract`: This is a variable within the QGIS model which is used in specifying resolution when rasterizing vector data. It is stated to have a default value of 70 (presumed meters), but we noted that the text of the original study stated that resolution was 10x10 meters. We therefore did not use this input but are recording its presence for transparency.
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: Pixel size has a default value of 70 meters and maximum value of 100 meters.
+
+### Initial clip (initial_clip.shp)
+
+- `Abstract`: Indicated to be the combination of Microsoft AI building generation and OpenStreetMap buildings.
+- `Spatial Coverage`: The study site.
+- `Spatial Extent`: 24.9389406999999999,-33.9686420999999967 : 36.7868238000000005,-1.4968789000000000
+- `Spatial Reference System`: EPSG:4326 - WGS 84
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+
+### Secondary roads (secondary_roads.shp)
+
+- `Abstract`: This is a shapefile which is described as containing "all tracks and roads that were within the study area aside from the two major highways" by Justin Lucas. The shapefile contains line geometries and has 176 total features.
+- `Spatial Coverage`: The data source pertains to land surrounding Makuyuni Wildlife Corridor and the corridor itself.
+- `Spatial Resolution`: Unknown
+- `Spatial Extent`: 4002985.2809690786525607,-417528.5057486270670779 : 4055363.5504161105491221,-386600.4248493338818662
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas. Lucas states that this shapefile was sourced from OpenStreetMap.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+
+### Major roads (major_roads.shp)
+
+- `Abstract`: This is a shapefile which contains "two highways that run through the study area", per Justin Lucas.
+- `Spatial Coverage`: The data source pertains to the entirety of the extent of the highways, which extend far past the study site and outside of Tanzania to the north and south.
+- `Spatial Extent`: 24.9389406999999999,-33.9686420999999967 : 36.7868238000000005,-1.4968789000000000
+- `Spatial Reference System`: EPSG:4326 - WGS 84
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas. Lucas states that this shapefile is sourced from OpenStreetMap. 
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+
+### Buildings (merged_buildings.shp)
+
+- `Abstract`: Indicated to be the combination of Microsoft AI building generation and OpenStreetMap buildings.
+- `Spatial Coverage`: The study site.
+- `Spatial Extent`: 24.9389406999999999,-33.9686420999999967 : 36.7868238000000005,-1.4968789000000000
+- `Spatial Reference System`: EPSG:4326 - WGS 84
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas.
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+
+### Bomas (bomas.shp)
+
+- `Abstract`: This is a shapefile which ostensibly contains locations of bomas, or livestock enclosures, within the wildlife corridor. It is also referred to with the term "rural".
+- `Spatial Coverage`: The data source pertains to land within the wildlife corridor.
+- `Spatial Extent`: 4007605.1797135984525084,-412580.2386067652842030 : 4032954.7106412472203374,-387445.8448925596894696
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: Unknown, presumed 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the shared data from the original authors, presumed to be namely Justin Lucas. 
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+
+
+Note: while "start_region.shp" and "end_region.shp" are included as inputs to the QGIS model, we did not work with these files due to their relevance to an accumulated cost surface raster rather than a least cost surface raster (i.e., there do not need to be defined start and end regions for a determination of cost). As mentioned above, the QGIS model does not contain all steps to create such an output.
+
+## Workflow
 
 1. Clip landcover by extent of bounding box.
 
@@ -24,7 +250,7 @@ Inputs: "landcover", "bounding_box"
 Outputs: unnamed intermediate output "lc_study_clip"
 Corresponding QGIS workflow function: Clip landcover by study site
 
-**Unplanned deviation**: We are clipping the land cover .tif file based on the bounding box instead of the "initial clip" file because the landcover was clipped twice.
+**Planned deviation**: In the QGIS model, the landcover input file is clipped to the initial clip file before being reprojected and subsequently clipped to the extent of the bounding box file. We judged that we could avoid clipping twice by clipping to the extent of the bounds before reprojecting. 
 ```{r}
 # Read in landcover .tif file under the raster package
 landcover <- here("data", "raw", "public", "landcover (1).tif")  %>% raster()
@@ -41,7 +267,7 @@ lc_study_clip <- mask(crop(landcover, extent(bounds)), bounds)
 
 2. Warp (reproject) landcover.
 
-Inputs: initial_raster_clip, pixel_size
+Inputs: lc_study_clip
 Outputs: unnamed intermediate output "initial_raster_clip_proj"
 Corresponding QGIS workflow function: Warp (reproject)
 
@@ -272,6 +498,8 @@ plot(buildings_prox_reclass)
 Inputs: "buffer_region"
 Outputs: unnamed intermediate "buffer_raster"
 Corresponding QGIS workflow function: Rasterize buffer zone
+
+**Planned Deviation**: We reclassify the non-NA buffer zone values to 1 instead of 999 so that the range of values of the cost raster are able to be viewed more easily. While this does impact the following calculation of the difference between the new and original cost rasters, it is very easily determined which areas are within the buffer zone due to their incredibly high values.
 ```{r}
 # Read in shapefile under stars
 buffer <- here("data", "raw", "public", "buffer_region", "buffer_region.shp") %>% st_read()
@@ -289,7 +517,7 @@ buffer_raster <- st_as_raster(buffer_raster)
 buffer_raster <- resample(buffer_raster, lc_study_clip_proj)
 
 # Clip to extent of study landcover and reclassify 
-buffer_raster <- buffer_raster %>% 
+buffer_raster_reclass <- buffer_raster %>% 
   setExtent(extent(lc_study_clip_proj)) %>%
   reclassify(cbind(1, Inf, 1)) %>%
   reclassify(cbind(NA, 0))
@@ -305,47 +533,53 @@ A <- major_roads_raster_proj
 B <- secondary_roads_raster
 C <- buildings_prox_reclass
 D <- lc_reclass
-E <- buffer_raster
+E <- buffer_raster_reclass
 
-cost_unclip <- (A+(0.25*B)+C+D+E)/4
+cost_no_buffer <- (A+(0.25*B)+C+D+E)/4
 ```
 
-9. Compare cost surface with output from original extension study.
+9a. Read in original cost raster; resample both old and new rasters for to ensure they can be compared.
 
-Inputs: "DD_Cost_6", "DDclipped_cost"
-Output: "diff"
-Corresponding QGIS workflow function: N/A
+
+**Planned deviation**: We are creating a new cost raster so that the cost difference raster can be more effectively viewed within R. Though the previous version of the raster from this workflow
 ```{r}
 # Read in "DD_Cost_6.tif", the presumed cost raster output of the QGIS workflow, under raster
-cost6 <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
+cost_old <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
 
 # Resample to appropriate resolution
-cost6 <- resample(cost6, pixel_default)
+cost_old <- resample(cost_old, pixel_default)
 
 # Resample cost raster to appropriate resolution
-DDclipped_cost <- resample(cost_unclip, pixel_default, filename="repro_cost", overwrite=T)
+cost_no_buffer <- resample(cost_no_buffer, pixel_default, filename="cost_no_buffer", overwrite=T)
+
+plot(cost_no_buffer)
+```
+
+9b. Create a version of the cost raster with the high values of the buffer zone preserved.
+
+```{r}
+# Clip to extent of study landcover and reclassify 
+buffer_raster_new <- buffer_raster %>% 
+  setExtent(extent(lc_study_clip_proj)) %>%
+  reclassify(cbind(1, Inf, 999)) %>%
+  reclassify(cbind(NA, 0))
+
+# Change raster calculator parameter "E" to new buffer raster.
+E <- buffer_raster_new
+
+# Create new version of cost raster with buffer zone values intact.
+cost_buffer <- (A+(0.25*B)+C+D+E)/4
 
 # Overlay the rasters and subtract the reproduction cost raster from the original cost raster
-diff <- overlay(cost6, DDclipped_cost, fun=function(cost6, DDclipped_cost){return(cost6-DDclipped_cost)},
-                filename="9difference", overwrite=T)
+diff <- overlay(cost_old, cost_buffer, fun=function(cost_old, cost_new){return(cost_old-cost_new)},
+                filename="cost_diff", overwrite=T)
+
+plot(diff)
 ```
 
-10. Visualize difference between cost rasters. 
+## Result
 
-Inpust: "diff"
-Outputs: N/A
-Corresponding QGIS workflow function: N/A
-```{r}
-# The 
+One main result of this workflow is the creation of a cost surface raster (`cost_no_buffer`; "repro_cost.grd") for the Makuyuni Wildlife Corridor study area as defined in the original study. This output is intended to display the unitless cost for a large mammal to travel across a given pixel of the study area. For ease of viewing the range of non-buffer zone cost values in `cost_no_buffer`, we reclassified the buffer zone so that values within the buffer had cost values of 1 instead of 999, as in the original workflow. With the high values of the buffer zone removed, we can visualize the range of the new raster more easily in QGIS. Cost values outside the buffer zone range from 0.0025 to 0.7625. Cost is clearly higher on major roads and the areas closest to buildings, which is to be expected based on the concept that these landscape fixtures would pose a greater challenge for animal traversal than undeveloped land. The very highest cost values appear to be located in an area consisting of the overlap of the major roads buffer and a group of buildings; this location is found near the intersection of the two major road segments in the northeast of the study area. The lowest cost values accordingly appear for pixels which were classified as less costly during the landcover reclassification step of the workflow and which do not overlap with a road or building.
 
-
-
-
-
-```
-
-## Results write-up
-
-The main result of this workflow is the creation of a cost surface raster
-
+The difference raster (`diff`; "cost_diff.grd") is the other main output of the workflow. This raster is a comparison of the 
 
