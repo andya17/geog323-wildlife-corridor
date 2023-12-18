@@ -1,5 +1,7 @@
 # Title of Study
 
+Reproduction of Least Cost Model for Makuyuni Wildlife Corridor from Lyimo et al. (2023)
+
 ## Contributors
 
 - Emmanuel H. Lyimo<sup>1</sup>\*, email address, [ORCID link](https://orcid.org/0000-0002-5750-8636), College of African Wildlife Management, Mweka. P.O Box 3031, Moshi, Tanzania 
@@ -60,12 +62,6 @@ The data, procedures, and results of this repository are outlined in three table
 - Data: [data/data_index.csv](data/data_index.csv)
 - Procedures: [procedure/procedure_index.csv](procedure/procedure_index.csv)
 - Results: [results/results_index.csv](results/results_index.csv)
-
-Important local **documents** include:
-- Pre-analysis plan: [docs/report/preanalysis.pdf](docs/report/preanalysis.pdf)
-- Study report: [docs/report/report.pdf](docs/report/report.pdf)
-- Manuscript: [docs/manuscript/manuscript.pdf](docs/manuscript/manuscript.pdf)
-- Presentation: [docs/presentation/presentation.pdf](docs/presentation/presentation.pdf)
 
 #### Compendium reference
 

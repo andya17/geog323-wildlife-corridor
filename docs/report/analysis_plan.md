@@ -222,13 +222,28 @@ The main threat is boundary/edge effects, which can be mitigated by adding an ex
 
 ### Data transformations
 
-- Reproject land cover raster
-- Clip major roads to study site
+- Clip landcover by extent of bounding box.
+- Warp (reproject) landcover.
+- Reclassify landcover by table.
+- Reproject secondary roads to CRS=32736.
+- Rasterize secondary roads.
 - Reproject major roads
-- Rasterize major roads
+- Rasterize and buffer major roads.
+- Reproject rural data (bomas).
+- Reproject buildings.
+- Merge vector layers.
+- Rasterize the merged layer.
+- Create a proximity raster.
+- Reclassify proximity raster by table.
+- Rasterize buffer zone.
+- Compute cost surface.
+- Compare cost surface with output from original extension study.
+- Visualize the difference raster using tmap.
+- Make buffer zone values NA to visualize cost values more simply; plot more meaningful tmap.
 
 ### Analysis
 
+Data will be analyzed in RStudio in the file "01-Makuyuni-Cost-Reproduction.Rmd". R functions from the stars and raster packages will be used alongside those of other packages in order to reproduce the steps of the QGIS model as closely as possible. The QGIS model will thus serve as a guide fo the analysis.
 
 ## Results
 
@@ -245,3 +260,6 @@ The authors of this preregistration state that they completed this preregistrati
 This report is based upon the template for Reproducible and Replicable Research in Human-Environment and Geographical Sciences, DOI:[10.17605/OSF.IO/W29MQ](https://doi.org/10.17605/OSF.IO/W29MQ)
 
 ## References
+
+Lyimo, E. H., Mayengo, G. M., Castico, D. J., Nguma, D., Martin, E. H., Hariohay, K. M., Kisingo, A. W., Lucas, J., Kimambo, N., & Holler, J. (2023). Makuyuni Wildlife Corridor: Analysis of the Effects of Socioecological Interactions and Changing Land Use on Movement Patterns of Large Mammal Species [Draft]. https://docs.google.com/document/d/1-RP3a5NUJcFMskoWzuZzMz4x-JI5DeKz/edit?usp=embed_facebook
+
