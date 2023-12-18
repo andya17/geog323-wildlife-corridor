@@ -229,17 +229,14 @@ The main threat is boundary/edge effects, which can be mitigated by adding an ex
 
 ### Analysis
 
-Describe the methods of analysis that will directly test the hypotheses or provide results to answer the research questions.
-This section should explicitly define any spatial / statistical *models* and their *parameters*, including *grouping* criteria, *weighting* criteria, and *significance thresholds*.
-Also explain any follow-up analyses or validations.
 
 ## Results
 
-Describe how results are to be presented.
+Results will be presented through visualization of a least cost raster created entirely in R and a figure which compares the original (QGIS) and new (R) least cost rasters.
 
 ## Discussion
 
-Describe how the results are to be interpreted *vis a vis* each hypothesis or research question.
+If the comparison figure has non-zero values, it will indicate that the new cost raster is not identical to the QGIS model output. In this case, the hypothesis of the plan will fail to be rejected by the data. 
 
 ## Integrity Statement
 

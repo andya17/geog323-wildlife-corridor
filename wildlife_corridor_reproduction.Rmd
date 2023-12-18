@@ -296,7 +296,7 @@ Inputs: "lc_study_clip_proj"
 Outputs: unnamed intermediate "lc_reclass"
 Corresponding QGIS workflow function: Reclassify landcover by table
 
-**Note**: The workflow diagram on Google Drive contained a different reclassification table for landcover. The table in QGIS was instead used as a reference due to its relevance to the behavior of the model.
+**Note**: The workflow diagram on Google Drive contained a different reclassification table for landcover. The table in QGIS was instead used as a reference due to its greater relevance to the behavior of the model.
 ```{r}
 # Create 3x10 table of values with which to reclassify
 # Data source: the QGIS workflow
@@ -332,7 +332,7 @@ Inputs: "secondary_roads_proj"
 Outputs: unnamed intermediate "secondary_roads_raster"
 Corresponding QGIS workflow function: Rasterize secondary roads
 
-**Unplanned deviation**: As the function `st_rasterize` changed the resolution of the secondary_roads object to over 100x100, it was deemed necessary to create a blank stars raster ("blank") with a resolution of 10x10 to use as a `template` within the function. The code used to create the template is sourced from Holler et al. (2023) [unpublished]. 
+**Unplanned deviation**: As the function `st_rasterize` changed the resolution of the secondary_roads object to over 100x100, it was deemed necessary to create a blank stars raster ("blank") with a resolution of 10x10 to use as a `template` within the function. The code used to create the template and rasterize using it is sourced from Holler et al. (2023). 
 ```{r}
 # Create blank stars raster template
 b <- st_bbox(c(xmin=833170.1, xmax=861050.1, ymin=9585512.5, ymax=9617152.5), crs=st_crs(32736)) %>% st_as_sfc()
@@ -458,9 +458,6 @@ buildings_merged_raster <- resample(buildings_merged_raster, lc_study_clip_proj)
 buildings_merged_raster <- setExtent(buildings_merged_raster, extent(lc_study_clip_proj))
 ```
 
-
-Percent overlap - might need 100% to count
-
 6e. Create a proximity raster.
 
 Inputs: "merged"
@@ -498,8 +495,6 @@ plot(buildings_prox_reclass)
 Inputs: "buffer_region"
 Outputs: unnamed intermediate "buffer_raster"
 Corresponding QGIS workflow function: Rasterize buffer zone
-
-**Planned Deviation**: We reclassify the non-NA buffer zone values to 1 instead of 999 so that the range of values of the cost raster are able to be viewed more easily. While this does impact the following calculation of the difference between the new and original cost rasters, it is very easily determined which areas are within the buffer zone due to their incredibly high values.
 ```{r}
 # Read in shapefile under stars
 buffer <- here("data", "raw", "public", "buffer_region", "buffer_region.shp") %>% st_read()
@@ -517,13 +512,13 @@ buffer_raster <- st_as_raster(buffer_raster)
 buffer_raster <- resample(buffer_raster, lc_study_clip_proj)
 
 # Clip to extent of study landcover and reclassify 
-buffer_raster_reclass <- buffer_raster %>% 
+buffer_raster <- buffer_raster %>% 
   setExtent(extent(lc_study_clip_proj)) %>%
   reclassify(cbind(1, Inf, 1)) %>%
   reclassify(cbind(NA, 0))
 ```
 
-8a. Compute cost surface.
+8. Compute cost surface.
 
 Inputs: "major_roads_raster" [A], "secondary_roads_raster" [B], "buildings_prox_reclass" [C], "lc_reclass" [D], "buffer_raster" [E]
 Outputs: unnamed intermediate "cost_unclip"
@@ -533,53 +528,34 @@ A <- major_roads_raster_proj
 B <- secondary_roads_raster
 C <- buildings_prox_reclass
 D <- lc_reclass
-E <- buffer_raster_reclass
+E <- buffer_raster
 
-cost_no_buffer <- (A+(0.25*B)+C+D+E)/4
+cost_unclip <- (A+(0.25*B)+C+D+E)/4
 ```
 
-9a. Read in original cost raster; resample both old and new rasters for to ensure they can be compared.
+9. Compare cost surface with output from original extension study.
 
-
-**Planned deviation**: We are creating a new cost raster so that the cost difference raster can be more effectively viewed within R. Though the previous version of the raster from this workflow
+Inputs: "DD_Cost_6", "DDclipped_cost"
+Output: "diff"
+Corresponding QGIS workflow function: N/A
 ```{r}
 # Read in "DD_Cost_6.tif", the presumed cost raster output of the QGIS workflow, under raster
-cost_old <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
+cost6 <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
 
 # Resample to appropriate resolution
-cost_old <- resample(cost_old, pixel_default)
+cost6 <- resample(cost6, pixel_default)
 
 # Resample cost raster to appropriate resolution
-cost_no_buffer <- resample(cost_no_buffer, pixel_default, filename="cost_no_buffer", overwrite=T)
-
-plot(cost_no_buffer)
-```
-
-9b. Create a version of the cost raster with the high values of the buffer zone preserved.
-
-```{r}
-# Clip to extent of study landcover and reclassify 
-buffer_raster_new <- buffer_raster %>% 
-  setExtent(extent(lc_study_clip_proj)) %>%
-  reclassify(cbind(1, Inf, 999)) %>%
-  reclassify(cbind(NA, 0))
-
-# Change raster calculator parameter "E" to new buffer raster.
-E <- buffer_raster_new
-
-# Create new version of cost raster with buffer zone values intact.
-cost_buffer <- (A+(0.25*B)+C+D+E)/4
+DDclipped_cost <- resample(cost_unclip, pixel_default, filename="repro_cost", overwrite=T)
 
 # Overlay the rasters and subtract the reproduction cost raster from the original cost raster
-diff <- overlay(cost_old, cost_buffer, fun=function(cost_old, cost_new){return(cost_old-cost_new)},
+diff <- overlay(cost6, DDclipped_cost, fun=function(cost6, DDclipped_cost){return(cost6-DDclipped_cost)},
                 filename="cost_diff", overwrite=T)
-
-plot(diff)
 ```
 
 ## Result
 
 One main result of this workflow is the creation of a cost surface raster (`cost_no_buffer`; "repro_cost.grd") for the Makuyuni Wildlife Corridor study area as defined in the original study. This output is intended to display the unitless cost for a large mammal to travel across a given pixel of the study area. For ease of viewing the range of non-buffer zone cost values in `cost_no_buffer`, we reclassified the buffer zone so that values within the buffer had cost values of 1 instead of 999, as in the original workflow. With the high values of the buffer zone removed, we can visualize the range of the new raster more easily in QGIS. Cost values outside the buffer zone range from 0.0025 to 0.7625. Cost is clearly higher on major roads and the areas closest to buildings, which is to be expected based on the concept that these landscape fixtures would pose a greater challenge for animal traversal than undeveloped land. The very highest cost values appear to be located in an area consisting of the overlap of the major roads buffer and a group of buildings; this location is found near the intersection of the two major road segments in the northeast of the study area. The lowest cost values accordingly appear for pixels which were classified as less costly during the landcover reclassification step of the workflow and which do not overlap with a road or building.
 
-The difference raster (`diff`; "cost_diff.grd") is the other main output of the workflow. This raster is a comparison of the 
+The difference raster (`diff`; "cost_diff.grd") is the other main output of the workflow and is more relevant for the discussion to follow. This raster is a comparison of the 
 
