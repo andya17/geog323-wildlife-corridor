@@ -530,7 +530,7 @@ C <- buildings_prox_reclass
 D <- lc_reclass
 E <- buffer_raster
 
-cost_unclip <- (A+(0.25*B)+C+D+E)/4
+cost_new <- (A+(0.25*B)+C+D+E)/4
 ```
 
 9. Compare cost surface with output from original extension study.
@@ -540,17 +540,22 @@ Output: "diff"
 Corresponding QGIS workflow function: N/A
 ```{r}
 # Read in "DD_Cost_6.tif", the presumed cost raster output of the QGIS workflow, under raster
-cost6 <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
+cost_original <- here("data", "derived", "public", "DD_Cost_6.tif") %>% raster()
 
 # Resample to appropriate resolution
-cost6 <- resample(cost6, pixel_default)
+cost_original <- resample(cost_original, pixel_default)
 
 # Resample cost raster to appropriate resolution
-DDclipped_cost <- resample(cost_unclip, pixel_default, filename="repro_cost", overwrite=T)
+cost_new <- resample(cost_new, pixel_default)
+```
+
+## Figure 1
+```{r}
+# Plot cost
+plot(cost_new)
 
 # Overlay the rasters and subtract the reproduction cost raster from the original cost raster
-diff <- overlay(cost6, DDclipped_cost, fun=function(cost6, DDclipped_cost){return(cost6-DDclipped_cost)},
-                filename="cost_diff", overwrite=T)
+diff <- overlay(cost_original, cost_new, fun=function(cost_original, cost_new){return(cost_original-cost_new)})
 ```
 
 10a. Visualize the difference raster using tmap.
@@ -580,12 +585,17 @@ cost_diff_tmap_buffer
 diff_nobuffer <- diff %>% 
   reclassify(cbind(1, Inf, NA))
 
+# Convert to stars to see descriptive statistics
+cost_diff_stars <- st_as_stars(diff_nobuffer)
+
+cost_diff_stars
+
 # Set tmap mode
 tmap_mode("view")
 
 # Create tm_raster
 cost_diff_tmap <- tm_shape(diff_nobuffer) + tm_raster(
-    palette = "Greys",
+    palette = "PuOr",
     style = "cont",
     breaks = c(-1, 0, 1),
     #labels = c("-1", "0", "1", "500"),
@@ -593,13 +603,18 @@ cost_diff_tmap <- tm_shape(diff_nobuffer) + tm_raster(
     title = "Least Cost: Original - Reproduction",
     legend.show=T
 )
+```
 
+## Figure 2
+```{r}
 cost_diff_tmap
 ```
 
-## Result
+# Results
 
-One main result of this workflow is the creation of a cost surface raster (`cost_no_buffer`; "repro_cost.grd") for the Makuyuni Wildlife Corridor study area as defined in the original study. This output is intended to display the unitless cost for a large mammal to travel across a given pixel of the study area. For ease of viewing the range of non-buffer zone cost values in `cost_no_buffer`, we reclassified the buffer zone so that values within the buffer had cost values of 1 instead of 999, as in the original workflow. With the high values of the buffer zone removed, we can visualize the range of the new raster more easily in QGIS. Cost values outside the buffer zone range from 0.0025 to 0.7625. Cost is clearly higher on major roads and the areas closest to buildings, which is to be expected based on the concept that these landscape fixtures would pose a greater challenge for animal traversal than undeveloped land. The very highest cost values appear to be located in an area consisting of the overlap of the major roads buffer and a group of buildings; this location is found near the intersection of the two major road segments in the northeast of the study area. The lowest cost values accordingly appear for pixels which were classified as less costly during the landcover reclassification step of the workflow and which do not overlap with a road or building.
+One main result of this workflow is the creation of a cost surface raster (Figure 1; `cost_new`) for the Makuyuni Wildlife Corridor study area as defined in the original study. This output is intended to display the unitless cost for a large mammal to travel across a given pixel of the study area. For ease of viewing the range of non-buffer zone cost values in `cost_new`, we reclassified the buffer zone so that values within the buffer had values of 1 instead of 999, the value in the original workflow. With the high values of the buffer zone removed, we can visualize the range of the new raster more easily. Cost values outside the buffer zone range from 0.0025 to 0.7625 (the exact maximum was determined via visualization in QGIS, but the R scale works well). Although buffer zone values did not end up as all being 1 due to the raster calculation needed compute the least cost surface, it is still quite obvious where the buffer zone boundaries lie; there is almost always a sharp transition from the buffer zone to the interior. The buffer zone can be ignored for the subsequent summary of cost values. One can interpret the cost raster through the plots of other landscape fixtures such as major roads, secondary roads, and buildings. Cost is clearly higher on major roads and the areas closest to buildings, which is to be expected based on the concept that these elements pose a greater challenge for animal traversal than undeveloped land. The very highest cost values appear to be located in an area consisting of the overlap of the major roads buffer and a group of buildings; this location is found near the intersection of the two major road segments in the northeast of the study area. The lowest cost values accordingly appear for pixels which were classified as less costly during the landcover reclassification step of the workflow and which do not overlap with a road or building.
 
-The difference raster (`diff`; "cost_diff.grd") is the other main output of the workflow and is more relevant for the discussion to follow. This raster is a comparison of the 
+The difference raster (Figure 2; `cost_diff_tmap`), specifically one with buffer zone values reclassified, is the other main output of the workflow and is more relevant for the discussion to follow. This raster is a comparison of the original and reproduction versions of the least cost raster. We removed the buffer zone values from the final version of the visualization, for they are mostly pertinent to an accumulated cost raster rather than a least cost raster. Figure 2 accordingly shows a raster without the buffer zone. Orange pixels contain difference values below 0 and represent locations where the cost is higher in the reproduction compared to the original raster (e.g., 0.5 - 0.7). Purple pixels contain difference values above 0 and represent locations where the cost is lower in the reproduction compared to the original raster (e.g., 0.9 - 0.2). White pixels represent areas where there was no difference between the rasters. We observe that while some of the raster appears to show no difference, there are many spots with positive difference values and seemingly fewer spots with negative values. A review of inputs to the workflow suggests that the spots are aligned with buildings.
+
+# Discussion
 
