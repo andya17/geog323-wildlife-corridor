@@ -57,7 +57,7 @@ RStudio analysis was conducted on a 2020 Macbook Air running macOS Ventura versi
 # record all the packages you are using here
 # this includes any calls to library(), require(),
 # and double colons such as here::i_am()
-packages <- c("tidyverse", "here", "sf", "stars", "raster", "stringr")
+packages <- c("tidyverse", "here", "sf", "stars", "raster", "stringr", "tmap")
 
 # force all conflicts to become errors
 # if you load dplyr and use filter(), R has to guess whether you mean dplyr::filter() or stats::filter()
@@ -551,6 +551,50 @@ DDclipped_cost <- resample(cost_unclip, pixel_default, filename="repro_cost", ov
 # Overlay the rasters and subtract the reproduction cost raster from the original cost raster
 diff <- overlay(cost6, DDclipped_cost, fun=function(cost6, DDclipped_cost){return(cost6-DDclipped_cost)},
                 filename="cost_diff", overwrite=T)
+```
+
+10a. Visualize the difference raster using tmap.
+
+```{r}
+# Set tmap mode
+tmap_mode("view")
+
+# Create tmap based on ggplot above
+cost_diff_tmap_buffer <- tm_shape(diff) + tm_raster(
+    palette = "Oranges",
+    style = "fixed",
+    breaks = c(-1, 0, 1, 500),
+    #labels = c("-1", "0", "1", "500"),
+    midpoint = NA,
+    title = "Vulnerability: Original - Reproduction",
+    legend.show=T
+)
+
+cost_diff_tmap_buffer
+```
+
+10b. Make buffer zone values NA to visualize cost values more simply; plot more meaningful tmap.
+
+```{r}
+# Reclassify values above 1 to NA
+diff_nobuffer <- diff %>% 
+  reclassify(cbind(1, Inf, NA))
+
+# Set tmap mode
+tmap_mode("view")
+
+# Create tm_raster
+cost_diff_tmap <- tm_shape(diff_nobuffer) + tm_raster(
+    palette = "Greys",
+    style = "cont",
+    breaks = c(-1, 0, 1),
+    #labels = c("-1", "0", "1", "500"),
+    midpoint = 0,
+    title = "Least Cost: Original - Reproduction",
+    legend.show=T
+)
+
+cost_diff_tmap
 ```
 
 ## Result
