@@ -63,6 +63,11 @@ The data, procedures, and results of this repository are outlined in three table
 - Procedures: [procedure/procedure_index.csv](procedure/procedure_index.csv)
 - Results: [results/results_index.csv](results/results_index.csv)
 
+Important local documents include:
+
+Pre-analysis plan: docs/report/analysis_plan.md
+Study report: docs/index.html
+
 #### Compendium reference
 
 The [template_readme.md](template_readme.md) file contains more information on the design of this template and references used in the design.
