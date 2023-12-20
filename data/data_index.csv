@@ -1,1 +1,10 @@
 path,name,metadata,description
+derived/public/DD_Cost_6.tif,DD_Cost_6,"Downloaded version of least cost raster output of QGIS model, which was created by Justin Lucas","A raster with cost values for Makuyni Wildlife Corridor, Tanzania"
+derived/public/finalmodel.model3,FinalModel,Downloaded QGIS model from project Google Drive,"A QGIS model with steps to create a least cost raster, created by Justin Lucas"
+raw/public/Bomas,Bomas,Downloaded rural layer/bomas ,A shapefile with rural buildings
+raw/public/bounding_box,Bounding box,Downloaded bounding box,A shapefile with a boundary box for the study site
+raw/public/buffer_region,Buffer region,Downloaded buffer zone ,A shapefile with a buffer zone for high cost values 
+raw/public/initial_clip,Initial clip,Downloaded initial clip,A shapefile for clipping the landcover layer
+raw/public/major_roads_vector,Major roads vector,Downloaded major roads,A shapefile for highways
+raw/public/merged_buildings,Merged buildings,Downloaded buildings layer,A shapefile for buildings (Microsoft AI and OpenStreetMaps)
+raw/public/secondary_roads,Secondary roads,Downloaded secondary roads layer,A shapefile for secondary (smaller) roads in the study region
