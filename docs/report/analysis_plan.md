@@ -35,7 +35,7 @@ This study is a reproduction of unpublished research by Emmanual H Lyimo et al (
 - `Key words`: multifactor analysis, least cost pathway, wildlife corridor, movement cost, line transect sampling, Makuyuni, Tarangire National Park, Essmingor National Forest Reserve, Tanzania
 - `Subject`: Social and Behavioral Sciences: Geography: Nature and Society Relations
 - `Date created`: 2023-11-30
-- `Date modified`: 2023-12-13
+- `Date modified`: 2023-12-19
 - `Spatial Coverage`: Makuyuni Wildlife Corridor, Tanzania
 - `Spatial Resolution`: 10 meter resolution
 - `Spatial Reference System`: EPSG 32736
@@ -50,9 +50,11 @@ As this is a reproduction study, all of these fields are the same as in the orig
 
 This is a **reproduction study**. The part of the study which we are reproducing (the wildlife corridor ) is **observational**.
 
-Our research question concerns whether the wildlife corridor least cost analysis can be reproduced in R. The **null hypothesis** is that there will be no difference between Figure 5 in the original study and the reproduced Figure 5 which we create using R. The **alternative hypothesis** is that there will be apparent differences between these two figures.
+Our research question concerns whether the wildlife corridor least cost analysis can be reproduced in R. The **null hypothesis** is that there will be no difference between the least cost raster which is the output of the QGIS model and the least cost raster which we create in R  The **alternative hypothesis** is that there will be apparent differences between these two figures.
 
-Our method of comparing the two figures will be visual inspection due to the scope of the project.
+Our method of comparing the two figures will be the production of a raster showing the difference between the cost values in the original versus the reproduction least cost raster.
+
+*Note*: The study design section was updated after code had been written to say that we aim to reproduce the output of the QGIS model, not Figure 5 in the manuscript. This is more conducive to an analysis of whether the steps involved within the model can be reproduced. We had assumed that Figure 5 in the manuscript was equivalent when first starting the project, but this is not the case. "DD_Cost_6.tif" in the Google Drive for the original project is the raster we aim to reproduce.
 
 ## Materials and procedure
 
@@ -66,6 +68,7 @@ Hardware: MacBook Air 2020; MacOS 13.4 (22F66)
 R Version 2023.06.2+561 (2023.06.2+561)
 
 R packages used:
+- tidyverse
 - groundhog
 - here
 - raster
