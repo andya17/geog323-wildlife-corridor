@@ -1,1 +1,2 @@
 ﻿path,name,description
+figures/cost-raster-no-buffer,Cost raster with no buffer zone,Result of cost raster for this analysis

@@ -1,0 +1,21 @@
+Landcover (landcover.tif)
+
+- `Abstract`: This is a land cover raster for the entirety of Tanzania.
+- `Spatial Coverage`: The data source pertains to the whole country.
+- `Spatial Resolution`: 4.77 m
+- `Spatial Reference System`: EPSG:3857 - WGS 84 / Pseudo-Mercator
+- `Temporal Coverage`: 2023
+- `Temporal Resolution`: Not applicable
+- `Lineage`: Sourced from the following paper: Song, L., Estes, A. B., & Estes, L. D. (2023). A super-ensemble approach to map land cover types with high resolution over data-sparse African savanna landscapes. International Journal of Applied Earth Observation and Geoinformation, 116, 103152. https://doi.org/10.1016/j.jag.2022.103152
+- `Distribution`: This was shared by the original authors.
+- `Constraints`: Unknown
+- `Data Quality`: No planned quality assessment.
+- `Variables`: Band 1 is land cover. The classification scheme is established by Song et al. (2023).
+  - 1 (orange): cropland
+  - 2 (dark green): forest/dense tree
+  - 3 (light green): grassland
+  - 4 (green): shrubland
+  - 5 (blue): water
+  - 6 (gray): built-up
+  - 7 (tan): bareland
+  - 8 (teal): wetland
